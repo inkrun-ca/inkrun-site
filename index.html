@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- SEO -->
+<title>Inkrun — Flat-rate web editions for Canadian community newspapers</title>
+<meta name="description" content="Inkrun turns your print-ready PDF into a clean web edition for $35–$40 a month, flat. No percentage cuts, no skimmed fees. Your readers stay yours.">
+<link rel="canonical" href="https://inkrun.ca/">
+<meta name="theme-color" content="#FDFDF8">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Inkrun">
+<meta property="og:locale" content="en_CA">
+<meta property="og:url" content="https://inkrun.ca/">
+<meta property="og:title" content="Inkrun — Flat-rate web editions for Canadian community newspapers">
+<meta property="og:description" content="Inkrun turns your print-ready PDF into a clean web edition for $35–$40 a month, flat. No percentage cuts, no skimmed fees. Your readers stay yours.">
+
+<!-- Favicon: folded-newspaper woodcut motif in cyan (see inkrun-md/DESIGN.md > Craft vocabulary) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2034'%20fill='none'%20stroke='%230077A8'%20stroke-width='2.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M13%205.5h20v18.5H13'/%3E%3Cpath%20d='M6%209.5h22v19.5H6z'/%3E%3Cpath%20d='M9.5%2013.2h9M9.5%2017.4h7.5M9.5%2021.2h7.5M9.5%2025h5M20.5%2017.4h4M20.5%2021.2h4'/%3E%3C/svg%3E">
+
+<style>
+/* ============================================================
+   INKRUN — "Modern CMYK / Print Shop"
+   These tokens are the source of truth. Keep them in sync
+   with inkrun-md/DESIGN.md.
+   ============================================================ */
+:root {
+  --ink: #1A1A1A;        /* black — body text, headlines, structure. 17:1 on paper */
+  --paper: #FDFDF8;      /* paper white — page background */
+  --cyan: #0077A8;       /* INTERACTIVE ONLY — links, CTA, focus. 4.9:1 on paper */
+  --cyan-dark: #00597D;  /* CTA hover/active. White text on it: 7.7:1 */
+  --magenta: #D6255B;    /* SPARING — villain's fees, h2 rule, form error. 4.8:1 on paper */
+  --yellow: #F2B705;     /* highlight BEHIND ink words only — never text */
+  --line: #D0D0CC;       /* hairline rules (~ink at 20% on paper) — decoration only */
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-size: 100%; } /* respect the reader's own font-size setting */
+
+body {
+  margin: 0;
+  background-color: var(--paper);
+  /* the single allowed paper-grain texture: inline SVG noise, ~3.5% alpha */
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='140'%20height='140'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.85'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.035%200'/%3E%3C/filter%3E%3Crect%20width='140'%20height='140'%20filter='url(%23n)'/%3E%3C/svg%3E");
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 1.25rem; /* 20px base */
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+::selection { background: rgba(242, 183, 5, 0.55); } /* yellow marker */
+
+.wrap {
+  max-width: 40rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 6vw, 2.5rem);
+}
+
+/* --- skip link (visible on focus only) --- */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--paper);
+  padding: 0.75rem 1.25rem;
+  z-index: 10;
+}
+.skip:focus { left: 0.5rem; top: 0.5rem; }
+
+/* --- masthead --- */
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-block: 1.1rem;
+}
+.masthead-inner svg { flex: none; opacity: 0.8; }
+.wordmark { font-weight: 700; font-size: 1.375rem; letter-spacing: 0.01em; }
+/* classic thick/thin press rule */
+.pressrule {
+  height: 4px;
+  border-top: 3px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+
+/* --- typography --- */
+h1 {
+  font-size: clamp(2.4rem, 7vw, 3.6rem);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.25rem;
+}
+h2 {
+  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  line-height: 1.2;
+  margin: 0 0 1.5rem;
+}
+/* the magenta rule line — sparing emphasis, consistent across sections */
+h2::after {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 3px;
+  background: var(--magenta);
+  margin-top: 0.7rem;
+}
+section { padding-block: clamp(2.75rem, 7vw, 4.25rem); }
+section p { margin: 0 0 1.25rem; max-width: 34em; }
+section p:last-child { margin-bottom: 0; }
+
+.lede {
+  font-size: 1.375rem;
+  line-height: 1.5;
+  margin: 0 0 2rem;
+  max-width: 30em;
+}
+
+/* yellow marker highlight — behind ink words only, never yellow text */
+mark {
+  background: rgba(242, 183, 5, 0.45); /* --yellow at 45% over paper */
+  color: inherit;
+  padding: 0 0.12em;
+  border-radius: 0.4em 0.2em 0.45em 0.25em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* the villain's fee figures — magenta, sparing */
+.fee { color: var(--magenta); }
+
+/* --- links & focus (cyan = interactive only) --- */
+a {
+  color: var(--cyan);
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.16em;
+}
+a:hover { color: var(--cyan-dark); }
+:focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* --- CTA button: 64px tap target --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  padding: 0.6rem 2.25rem;
+  background: var(--cyan);
+  color: #FFFFFF;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn:hover { background: var(--cyan-dark); color: #FFFFFF; }
+.btn:active { transform: translateY(1px); }
+
+/* --- hero --- */
+.hero { padding-block: clamp(3.5rem, 10vw, 6rem) clamp(2.75rem, 7vw, 4.25rem); }
+
+/* --- letterpress hairline divider with woodcut motif --- */
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 40rem;
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 6vw, 2.5rem);
+  color: var(--ink);
+}
+.rule::before, .rule::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid var(--line);
+}
+.rule svg { flex: none; opacity: 0.55; }
+
+/* --- value blocks --- */
+.values {
+  display: grid;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+@media (min-width: 44rem) {
+  .values { grid-template-columns: 1fr 1fr; gap: 2.5rem 2rem; }
+}
+.value { border-top: 1px solid var(--ink); padding-top: 1rem; }
+.value h3 {
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 0.5rem;
+}
+.value p { margin: 0; }
+
+/* --- form --- */
+.form-frame {
+  margin-top: 2rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #FFFFFF;
+}
+.form-frame iframe {
+  display: block;
+  width: 100%;
+  min-height: 620px;
+  border: 0;
+  background: transparent;
+}
+.form-alt { font-size: 1rem; margin-top: 1rem; }
+#form-fallback {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+}
+#form-fallback label {
+  display: block;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+}
+.quick-row { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+#quick-email-input {
+  flex: 1 1 16rem;
+  min-height: 64px;
+  padding: 0.5rem 0.9rem;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  color: var(--ink);
+  background: #FFFFFF;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+}
+#quick-email-error {
+  color: var(--magenta);
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0.5rem 0 0;
+}
+
+/* --- footer --- */
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding-block: 2.5rem 3rem;
+}
+.contact-label {
+  font-family: var(--sans);
+  font-size: 1rem;
+  margin: 0;
+}
+.site-footer a[href^="mailto:"] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 64px; /* tap target */
+  font-size: 1.25rem;
+}
+.fine { font-size: 1rem; margin: 1.25rem 0 0; }
+
+/* --- motion: only when the reader allows it --- */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+  .btn { transition: background-color 0.15s ease-in-out; }
+}
+</style>
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ================= MASTHEAD ================= -->
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <!-- woodcut motif: ink roller (brayer) — decorative -->
+    <svg viewBox="0 0 48 34" width="46" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <rect x="4" y="13.5" width="27.5" height="11" rx="5.5"/>
+      <path d="M10 17.2h5.5M9.5 21h8.5"/>
+      <path d="M31.5 19 40.3 11.6"/>
+      <path d="M37.9 8.3 43.3 14.4"/>
+    </svg>
+    <span class="wordmark">Inkrun</span>
+  </div>
+  <div class="pressrule" aria-hidden="true"></div>
+</header>
+
+<main id="main">
+
+  <!-- ================= SECTION 1: HERO ================= -->
+  <section class="wrap hero">
+    <!-- COPY: headline -->
+    <h1>One flat rate. Your readers stay yours.</h1>
+    <!-- COPY: subheadline (yellow highlight = marker behind ink words only) -->
+    <p class="lede">Inkrun turns your print-ready PDF into a clean web edition for $35–$40 a month, flat. <mark>No percentage of your subscriptions.</mark> No fee skimmed from your readers at checkout. No surprise at renewal.</p>
+    <!-- COPY: call to action (scrolls to the form) -->
+    <p><a class="btn" href="#waitlist">Join the waitlist</a></p>
+  </section>
+
+  <div class="rule" aria-hidden="true">
+    <!-- woodcut motif: ink roller — decorative -->
+    <svg viewBox="0 0 48 34" width="46" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <rect x="4" y="13.5" width="27.5" height="11" rx="5.5"/>
+      <path d="M10 17.2h5.5M9.5 21h8.5"/>
+      <path d="M31.5 19 40.3 11.6"/>
+      <path d="M37.9 8.3 43.3 14.4"/>
+    </svg>
+  </div>
+
+  <!-- ================= SECTION 2: THE PROBLEM ================= -->
+  <section id="problem" class="wrap">
+    <h2>The renewal invoice</h2>
+    <!-- COPY: problem 1 — the renewal bill -->
+    <p>You know the moment. The annual renewal invoice lands on your desk. The flipbook platform wants another <strong class="fee">$2,000 or more</strong> — for software that animates your PDF and little else.</p>
+    <!-- COPY: problem 2 — the fee skimmed at reader checkout -->
+    <p>Or the free national newsstand. Free, until your reader pays you. Then an <strong class="fee">upkeep fee</strong> comes out of her pocket at checkout. She assumes you set it. You did not.</p>
+    <!-- COPY: problem 3 — the blocked local advertiser -->
+    <p>And try selling an ad to the hardware store on Main Street. Not allowed. The collective blocks local ads. It charges <strong class="fee">entry fees</strong> up front. And it offers you zero equity in the business your readers fund.</p>
+    <!-- COPY: the burn — first person plural, fellow publisher -->
+    <p>We have paid those bills. We are done paying them.</p>
+  </section>
+
+  <div class="rule" aria-hidden="true">
+    <!-- woodcut motif: folded newspaper — decorative -->
+    <svg viewBox="0 0 40 34" width="38" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <path d="M13 5.5h20v18.5H13"/>
+      <path d="M6 9.5h22v19.5H6z"/>
+      <path d="M9.5 13.2h9"/>
+      <path d="M9.5 17.4h7.5M9.5 21.2h7.5M9.5 25h5"/>
+      <path d="M20.5 17.4h4M20.5 21.2h4"/>
+    </svg>
+  </div>
+
+  <!-- ================= SECTION 3: THE DIFFERENCE ================= -->
+  <section id="difference" class="wrap">
+    <h2>What we are building instead</h2>
+    <div class="values">
+      <!-- COPY: value 1 — flat rate -->
+      <div class="value">
+        <h3>One flat rate</h3>
+        <p>$35–$40 a month. That is the whole price. No cut of your subscriptions, no per-reader fees, no new line items at renewal.</p>
+      </div>
+      <!-- COPY: value 2 — PDF-first -->
+      <div class="value">
+        <h3>PDF-first</h3>
+        <p>Send us the same print-ready PDF that goes to your printer. Inkrun builds the web edition for you. No reformatting. No second workflow.</p>
+      </div>
+      <!-- COPY: value 3 — senior-readable -->
+      <div class="value">
+        <h3>Readable at any age</h3>
+        <p>Type set at 20 pixels or more. High contrast. Tap targets a thumb can hit. Built for the readers who actually read community papers.</p>
+      </div>
+      <!-- COPY: value 4 — full ownership -->
+      <div class="value">
+        <h3>You own it all</h3>
+        <p>Your subscriber list. Your payment data. Your reader relationships. Export everything, any time. We are a utility, never a landlord.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="rule" aria-hidden="true">
+    <!-- woodcut motif: platen press — decorative -->
+    <svg viewBox="0 0 42 36" width="40" height="34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <path d="M5.5 31h31"/>
+      <path d="M10 31V11.5M32 31V11.5"/>
+      <path d="M7 11.5h28"/>
+      <path d="M15.5 26.5h11"/>
+      <path d="M18 15.5h6.5v5H18z"/>
+      <path d="M21.2 11.5v4"/>
+      <path d="M32 11.5l5.5-4.5"/>
+    </svg>
+  </div>
+
+  <!-- ================= SECTION 4: LEAVING IS EASY ================= -->
+  <section id="leaving" class="wrap">
+    <h2>Leaving is easy</h2>
+    <!-- COPY: kill the migration fear — exactly three sentences -->
+    <p>Leaving feels risky. It is not a project. Your back issues and your next edition are <mark>PDF uploads</mark> — most publishers are set up in an afternoon.</p>
+  </section>
+
+  <div class="rule" aria-hidden="true">
+    <!-- woodcut motif: ink roller — decorative -->
+    <svg viewBox="0 0 48 34" width="46" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <rect x="4" y="13.5" width="27.5" height="11" rx="5.5"/>
+      <path d="M10 17.2h5.5M9.5 21h8.5"/>
+      <path d="M31.5 19 40.3 11.6"/>
+      <path d="M37.9 8.3 43.3 14.4"/>
+    </svg>
+  </div>
+
+  <!-- ================= SECTION 5: THE FORM ================= -->
+  <section id="waitlist" class="wrap">
+    <h2>Join the waitlist</h2>
+    <!-- COPY: form intro — invites, doesn't push -->
+    <p>We are opening Inkrun to a first group of Canadian publishers in the coming months. Leave your email and we will write when your spot is ready. No sales calls. No qualifying quiz. We just want to know who is out there.</p>
+
+    <!-- TALLY EMBED — FIND-AND-REPLACE: replace every FORM_ID in this file
+         with the real Tally form ID (iframe src, direct link, fallback link).
+         NOTE: the 6–8 empathy questions live inside the Tally form builder,
+         not in this file. -->
+    <div class="form-frame">
+      <iframe id="tally-frame" src="https://tally.so/embed/FORM_ID?alignLeft=1&hideTitle=1&transparentBackground=1" width="100%" height="620" frameborder="0" marginheight="0" marginwidth="0" title="Inkrun waitlist signup form"></iframe>
+    </div>
+
+    <!-- COPY: always-visible direct link (also the graceful fallback) -->
+    <p class="form-alt">Trouble with the form? <a href="https://tally.so/r/FORM_ID">Open it directly</a>.</p>
+
+    <!-- revealed by JS if the Tally iframe is slow or fails to load -->
+    <div id="form-fallback" hidden>
+      <p>The form is taking a while to load. You can <a href="https://tally.so/r/FORM_ID">open it in its own page</a>, or leave your email here and we will add you ourselves:</p>
+      <form id="quick-email" novalidate>
+        <label for="quick-email-input">Email address</label>
+        <div class="quick-row">
+          <input id="quick-email-input" type="email" name="email" autocomplete="email" inputmode="email" placeholder="you@yourpaper.ca">
+          <button class="btn" type="submit">Add me</button>
+        </div>
+        <p id="quick-email-error" role="alert" hidden>That does not look like an email address.</p>
+      </form>
+      <p class="form-alt">This opens your mail app with a note to hello@inkrun.ca.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="wrap site-footer">
+  <!-- COPY: contact -->
+  <p class="contact-label">Questions about Inkrun:</p>
+  <a href="mailto:hello@inkrun.ca">hello@inkrun.ca</a>
+  <p class="contact-label">The person building this, directly:</p>
+  <a href="mailto:peter@inkrun.ca">peter@inkrun.ca</a>
+  <!-- COPY: privacy note (CASL-conscious — keep verbatim) -->
+  <p class="fine">We email you about Inkrun. Nothing else. Unsubscribe anytime.</p>
+  <!-- copyright — year is set dynamically by the script below -->
+  <p class="fine">© <span id="year">2026</span> Inkrun · inkrun.ca</p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* Dynamic copyright year */
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  /* Graceful message if the Tally iframe is slow or fails to load.
+     The always-visible direct link above is the first fallback;
+     this block is the second. */
+  var frame = document.getElementById("tally-frame");
+  var fallback = document.getElementById("form-fallback");
+  var loaded = false;
+  frame.addEventListener("load", function () { loaded = true; });
+  window.setTimeout(function () {
+    if (!loaded) { fallback.hidden = false; }
+  }, 12000);
+
+  /* Client-side email format validation for the fallback quick-capture.
+     Valid email opens the reader's mail app, addressed to hello@inkrun.ca. */
+  var form = document.getElementById("quick-email");
+  var input = document.getElementById("quick-email-input");
+  var error = document.getElementById("quick-email-error");
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var value = input.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      error.hidden = false;
+      input.focus();
+      return;
+    }
+    error.hidden = true;
+    window.location.href =
+      "mailto:hello@inkrun.ca?subject=Inkrun%20waitlist&body=" +
+      encodeURIComponent("Please add me to the Inkrun waitlist: " + value);
+  });
+})();
+</script>
+
+</body>
+</html>
