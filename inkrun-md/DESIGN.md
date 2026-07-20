@@ -25,9 +25,10 @@ White (`#FFFFFF`) appears in exactly one place: text on `--cyan`/`--cyan-dark` b
 ### Color rules (enforce strictly)
 
 - Black on paper does 90% of the work. **Body text is always `--ink`.**
-- If it isn't clickable, it isn't cyan. Cyan never appears as decoration or body text.
+- If it isn't clickable, it isn't cyan. Cyan never appears as decoration or body text. **One documented exception:** the Inkrun column header in the comparison table (`.compare .col-inkrun`) — a label, not body text (logged in DECISIONS.md, 2026-07-20).
 - Magenta is a spice, not a sauce: fee figures, one key word, the 3px rule under each h2, the form error. Never large fills, never backgrounds, never body text.
 - **Yellow is never text.** It only sits *behind* `--ink` words, at `rgba(242, 183, 5, 0.45)`, marker-style. Yellow text on white/paper fails contrast and is forbidden.
+- **Registration strip exception:** the masthead registration strip is the one place all four process colors (plus 18% grey `#D1D1D1`) appear as pure solid swatches. That is its literal function — a printer's color-control strip. The exception covers those five squares and nothing else.
 - Forbidden combinations: yellow text anywhere; magenta backgrounds behind text; cyan text on magenta or vice versa; any text on yellow except `--ink`; text over `--line`.
 
 ---
@@ -48,8 +49,10 @@ White (`#FFFFFF`) appears in exactly one place: text on `--cyan`/`--cyan-dark` b
 - h1: `clamp(2.4rem, 7vw, 3.6rem)`, line-height 1.12.
 - h2: `clamp(1.75rem, 5vw, 2.25rem)`, line-height 1.2, with the magenta rule (`::after`, 3rem × 3px).
 - Lede: `1.375rem`, line-height 1.5.
+- Price figure (`.price-figure`): `clamp(2rem, 6vw, 2.75rem)`, bold; each currency figure in a `nowrap` span so a price never breaks from its currency.
+- Comparison table (`.compare`): sans `1.125rem` — tabular data, not body copy.
 - Fine print (footer, form helper): `1rem` minimum, always `--ink` — no greyed-out small text.
-- Measure: `max-width: 34em` on paragraphs (≈ 65–70 characters). Column: `max-width: 40rem`.
+- Measure: `max-width: 34em` on paragraphs (≈ 65–70 characters). Column: `max-width: 48rem` (widened from 40rem on 2026-07-20 — see DECISIONS.md; mobile unchanged).
 - Ragged right, never justified. Sentence case headings.
 
 ---
@@ -65,6 +68,8 @@ Texture is suggestion, not costume.
 3. **Platen press** — section dividers
 
 New motifs must match this style (stroke ~2.4, `stroke-linecap="round"`, no fills except tiny accents) and are always decorative: `aria-hidden="true" focusable="false"`.
+
+**Registration strip** (masthead) — a printer's color-control strip: five solid squares — `--cyan`, `--magenta`, `--yellow`, `--ink`, and 18% grey `#D1D1D1` — each the height of the logo mark, right-justified on the wordmark line. Every square is offset vertically 1–3px in a varying direction, so the strip reads as misregistered — fresh off the press, not pixel-perfect. Pure CSS, no images. Below ~480px the squares shrink (32px → 24px), and the masthead flex row wraps so the strip drops to a second line, still right-justified — it never overlaps the logo. Squares are sized in px (not rem) to stay matched to the fixed-px SVG logo mark.
 
 **Allowed textures and rules:**
 
@@ -86,6 +91,9 @@ New motifs must match this style (stroke ~2.4, `stroke-linecap="round"`, no fill
 - **`.fee`** — magenta bold, reserved for the villain's money figures.
 - **`.rule`** — hairline divider + centered woodcut motif.
 - **`.pressrule`** — thick/thin double rule, masthead only.
+- **`.regmarks`** — the registration strip (see Craft vocabulary): five `px`-sized squares in a flex row, `margin-left: auto` in the wrapping masthead flex container; per-square `translateY` offsets of 1–3px.
+- **Pricing section (`#pricing`)** — `.price-figure` display line (both currencies, `nowrap` per figure), one annual line, one "flat means flat" line, one `.btn`. Every price on the page is single-sourced inside `<!-- PRICE ... -->` comments (here, plus the Inkrun column of the comparison table); prose everywhere else says "one flat monthly rate" with no figures.
+- **`.compare`** — comparison table: hairline `--line` row rules, 1px `--ink` header rule, generous padding, no shading. The Inkrun column header alone uses `--cyan` (documented exception). **Responsive stacking:** below 768px the table restacks — CSS only, no JS — into one labeled block per competitor: `display: contents` flattens `thead`/`tbody`/`tr`, every visible cell is pinned to an explicit `grid-row`, the `scope="row"` labels are hidden and repeated inline via `td::before { content: attr(data-label) ": " }`. Fully readable at 320px with no horizontal scroll.
 - **`.value` blocks** — 1px `--ink` top border, sans small-caps title (`1rem`, 0.06em tracking), 20px serif body; 1 column on mobile, 2 columns ≥ 44rem.
 - **`.form-frame`** — 1px `--line` border, white background, 620px iframe; always paired with a visible direct link under it (the first fallback) and the JS-revealed `#form-fallback` block (the second).
 - **Footer** — hairline top border; contact links at 1.25rem with 64px tap height; fine print 1rem.
@@ -101,11 +109,12 @@ New motifs must match this style (stroke ~2.4, `stroke-linecap="round"`, no fill
 - `prefers-reduced-motion`: smooth scroll and button transition only exist inside `@media (prefers-reduced-motion: no-preference)`.
 - Decorative SVGs are `aria-hidden`; the Tally iframe has a `title`; one `h1`; skip link present.
 - The highlight and selection colors keep ink text at AAA.
+- The comparison table keeps `scope` associations on desktop; its stacked small-screen layout repeats every row label inline (via `data-label`) so no cell loses its meaning.
 
 ---
 
 ## 6. Performance budget
 
 - Single self-contained `index.html`: inline CSS, zero webfonts, zero JS dependencies.
-- Total page weight under **80KB** (currently ~19KB). The only external request allowed is the Tally iframe.
+- Total page weight under **80KB** (currently ~27KB). The only external request allowed is the Tally iframe.
 - Every texture and motif is inline SVG or CSS — no image files.

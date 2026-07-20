@@ -6,7 +6,7 @@
 
 <!-- SEO -->
 <title>Inkrun — Flat-rate web editions for Canadian community newspapers</title>
-<meta name="description" content="Inkrun turns your print-ready PDF into a clean web edition for $35–$40 a month, flat. No percentage cuts, no skimmed fees. Your readers stay yours.">
+<meta name="description" content="Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate, in USD or CAD. No cut of your subscriptions. Your readers stay yours.">
 <link rel="canonical" href="https://inkrun.ca/">
 <meta name="theme-color" content="#FDFDF8">
 
@@ -16,7 +16,7 @@
 <meta property="og:locale" content="en_CA">
 <meta property="og:url" content="https://inkrun.ca/">
 <meta property="og:title" content="Inkrun — Flat-rate web editions for Canadian community newspapers">
-<meta property="og:description" content="Inkrun turns your print-ready PDF into a clean web edition for $35–$40 a month, flat. No percentage cuts, no skimmed fees. Your readers stay yours.">
+<meta property="og:description" content="Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate, in USD or CAD. No cut of your subscriptions. Your readers stay yours.">
 
 <!-- Favicon: folded-newspaper woodcut motif in cyan (see inkrun-md/DESIGN.md > Craft vocabulary) -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2034'%20fill='none'%20stroke='%230077A8'%20stroke-width='2.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M13%205.5h20v18.5H13'/%3E%3Cpath%20d='M6%209.5h22v19.5H6z'/%3E%3Cpath%20d='M9.5%2013.2h9M9.5%2017.4h7.5M9.5%2021.2h7.5M9.5%2025h5M20.5%2017.4h4M20.5%2021.2h4'/%3E%3C/svg%3E">
@@ -58,7 +58,7 @@ body {
 ::selection { background: rgba(242, 183, 5, 0.55); } /* yellow marker */
 
 .wrap {
-  max-width: 40rem;
+  max-width: 48rem;
   margin-inline: auto;
   padding-inline: clamp(1.25rem, 6vw, 2.5rem);
 }
@@ -74,9 +74,22 @@ body {
 }
 .skip:focus { left: 0.5rem; top: 0.5rem; }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* --- masthead --- */
 .masthead-inner {
   display: flex;
+  flex-wrap: wrap; /* lets the registration strip drop to a second line instead of crowding */
   align-items: center;
   gap: 0.6rem;
   padding-block: 1.1rem;
@@ -88,6 +101,27 @@ body {
   height: 4px;
   border-top: 3px solid var(--ink);
   border-bottom: 1px solid var(--ink);
+}
+
+/* --- registration strip: printer's color-control marks, decorative.
+     Squares are sized in px to match the fixed 32px logo mark, and each
+     is offset 1–3px in a varying direction — deliberately misregistered,
+     fresh off the press (see inkrun-md/DESIGN.md > Craft vocabulary). --- */
+.regmarks {
+  display: flex;
+  gap: 6px;
+  margin-left: auto; /* right-justified on the wordmark line */
+  padding-block: 4px;
+}
+.regmark { width: 32px; height: 32px; flex: none; }
+.regmark:nth-child(1) { background: var(--cyan);    transform: translateY(-2px); }
+.regmark:nth-child(2) { background: var(--magenta); transform: translateY(1px); }
+.regmark:nth-child(3) { background: var(--yellow);  transform: translateY(-1px); }
+.regmark:nth-child(4) { background: var(--ink);     transform: translateY(3px); }
+.regmark:nth-child(5) { background: #D1D1D1;        transform: translateY(-3px); } /* 18% grey */
+@media (max-width: 30rem) {
+  /* shrink proportionally on small screens; the flex wrap above handles the rest */
+  .regmark { width: 24px; height: 24px; }
 }
 
 /* --- typography --- */
@@ -173,12 +207,96 @@ a:hover { color: var(--cyan-dark); }
 /* --- hero --- */
 .hero { padding-block: clamp(3.5rem, 10vw, 6rem) clamp(2.75rem, 7vw, 4.25rem); }
 
+/* --- pricing --- */
+.price-figure {
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.75rem;
+}
+.price-cur { white-space: nowrap; } /* never break a figure from its currency */
+.price-per { font-size: 1.25rem; font-weight: 400; letter-spacing: 0; }
+
+/* --- comparison table: hairline rules, generous padding, no shading --- */
+.compare {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
+  font-family: var(--sans);
+  font-size: 1.125rem; /* tabular data, not body copy */
+  line-height: 1.45;
+}
+.compare th, .compare td {
+  padding: 0.9rem 1rem 0.9rem 0;
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid var(--line);
+}
+.compare thead th {
+  border-top: 0;
+  border-bottom: 1px solid var(--ink);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.compare th[scope="row"] { width: 24%; font-weight: 700; }
+.compare th:last-child, .compare td:last-child { padding-right: 0; }
+/* documented exception: cyan on the Inkrun column header only — a label,
+   not body text or decoration (see inkrun-md/DECISIONS.md, 2026-07-20) */
+.compare .col-inkrun { color: var(--cyan); }
+.compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: 1px solid var(--line); }
+
+/* below 768px: restack into one labeled block per competitor, with the row
+   labels repeated inline. Pure CSS — display:contents flattens the table
+   parts and every visible cell is pinned to an explicit grid-row. */
+@media (max-width: 47.99rem) {
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.6rem;
+  }
+  .compare thead, .compare tbody, .compare tr { display: contents; }
+  .compare thead th:first-child, .compare th[scope="row"] { display: none; }
+  .compare thead th {
+    border-bottom: 0;
+    border-top: 1px solid var(--ink);
+    margin-top: 1.75rem;
+    padding: 0.75rem 0 0.25rem;
+  }
+  .compare thead th:nth-child(2) { grid-row: 1; margin-top: 0; }
+  .compare thead th:nth-child(3) { grid-row: 8; }
+  .compare thead th:nth-child(4) { grid-row: 15; }
+  .compare tbody tr:nth-child(1) td:nth-child(2) { grid-row: 2; }
+  .compare tbody tr:nth-child(2) td:nth-child(2) { grid-row: 3; }
+  .compare tbody tr:nth-child(3) td:nth-child(2) { grid-row: 4; }
+  .compare tbody tr:nth-child(4) td:nth-child(2) { grid-row: 5; }
+  .compare tbody tr:nth-child(5) td:nth-child(2) { grid-row: 6; }
+  .compare tbody tr:nth-child(6) td:nth-child(2) { grid-row: 7; }
+  .compare tbody tr:nth-child(1) td:nth-child(3) { grid-row: 9; }
+  .compare tbody tr:nth-child(2) td:nth-child(3) { grid-row: 10; }
+  .compare tbody tr:nth-child(3) td:nth-child(3) { grid-row: 11; }
+  .compare tbody tr:nth-child(4) td:nth-child(3) { grid-row: 12; }
+  .compare tbody tr:nth-child(5) td:nth-child(3) { grid-row: 13; }
+  .compare tbody tr:nth-child(6) td:nth-child(3) { grid-row: 14; }
+  .compare tbody tr:nth-child(1) td:nth-child(4) { grid-row: 16; }
+  .compare tbody tr:nth-child(2) td:nth-child(4) { grid-row: 17; }
+  .compare tbody tr:nth-child(3) td:nth-child(4) { grid-row: 18; }
+  .compare tbody tr:nth-child(4) td:nth-child(4) { grid-row: 19; }
+  .compare tbody tr:nth-child(5) td:nth-child(4) { grid-row: 20; }
+  .compare tbody tr:nth-child(6) td:nth-child(4) { grid-row: 21; }
+  .compare td { border-top: 0; padding: 0.35rem 0; }
+  .compare td::before { content: attr(data-label) ": "; font-weight: 700; }
+  .compare tbody tr:last-child td { border-bottom: 0; }
+}
+
 /* --- letterpress hairline divider with woodcut motif --- */
 .rule {
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  max-width: 40rem;
+  max-width: 48rem;
   margin-inline: auto;
   padding-inline: clamp(1.25rem, 6vw, 2.5rem);
   color: var(--ink);
@@ -298,6 +416,12 @@ a:hover { color: var(--cyan-dark); }
       <path d="M37.9 8.3 43.3 14.4"/>
     </svg>
     <span class="wordmark">Inkrun</span>
+    <!-- registration strip: printer's color-control marks — pure CSS, decorative.
+         Five squares (cyan, magenta, yellow, ink, 18% grey) at logo-mark height,
+         each offset 1–3px so the strip reads as misregistered -->
+    <span class="regmarks" aria-hidden="true">
+      <span class="regmark"></span><span class="regmark"></span><span class="regmark"></span><span class="regmark"></span><span class="regmark"></span>
+    </span>
   </div>
   <div class="pressrule" aria-hidden="true"></div>
 </header>
@@ -306,10 +430,11 @@ a:hover { color: var(--cyan-dark); }
 
   <!-- ================= SECTION 1: HERO ================= -->
   <section class="wrap hero">
-    <!-- COPY: headline -->
-    <h1>One flat rate. Your readers stay yours.</h1>
-    <!-- COPY: subheadline (yellow highlight = marker behind ink words only) -->
-    <p class="lede">Inkrun turns your print-ready PDF into a clean web edition for $35–$40 a month, flat. <mark>No percentage of your subscriptions.</mark> No fee skimmed from your readers at checkout. No surprise at renewal.</p>
+    <!-- COPY: headline
+         ALTERNATE (swap manually): "Your paper, online. Your readers, yours." -->
+    <h1>Your paper. Your readers. Your paper online.</h1>
+    <!-- COPY: subheadline — carries the pricing, no figures (those live in #pricing only) -->
+    <p class="lede">Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate, in USD or CAD. <mark>No cut of your subscriptions.</mark></p>
     <!-- COPY: call to action (scrolls to the form) -->
     <p><a class="btn" href="#waitlist">Join the waitlist</a></p>
   </section>
@@ -328,13 +453,9 @@ a:hover { color: var(--cyan-dark); }
   <section id="problem" class="wrap">
     <h2>The renewal invoice</h2>
     <!-- COPY: problem 1 — the renewal bill -->
-    <p>You know the moment. The annual renewal invoice lands on your desk. The flipbook platform wants another <strong class="fee">$2,000 or more</strong> — for software that animates your PDF and little else.</p>
-    <!-- COPY: problem 2 — the fee skimmed at reader checkout -->
-    <p>Or the free national newsstand. Free, until your reader pays you. Then an <strong class="fee">upkeep fee</strong> comes out of her pocket at checkout. She assumes you set it. You did not.</p>
-    <!-- COPY: problem 3 — the blocked local advertiser -->
-    <p>And try selling an ad to the hardware store on Main Street. Not allowed. The collective blocks local ads. It charges <strong class="fee">entry fees</strong> up front. And it offers you zero equity in the business your readers fund.</p>
-    <!-- COPY: the burn — first person plural, fellow publisher -->
-    <p>We have paid those bills. We are done paying them.</p>
+    <p>The renewal invoice lands. Another <strong class="fee">$2,000 or more</strong> — for software that animates your PDF and little else.</p>
+    <!-- COPY: problem 2 — the checkout fee, the entry fee, zero equity. Facts, stated calmly -->
+    <p>The national newsstand looks free — until your reader pays you. An <strong class="fee">upkeep fee</strong> comes out of her pocket at checkout. She assumes you set it. You did not. <strong class="fee">Entry fees</strong> come up front. No equity in the business her readers fund.</p>
   </section>
 
   <div class="rule" aria-hidden="true">
@@ -352,25 +473,20 @@ a:hover { color: var(--cyan-dark); }
   <section id="difference" class="wrap">
     <h2>What we are building instead</h2>
     <div class="values">
-      <!-- COPY: value 1 — flat rate -->
-      <div class="value">
-        <h3>One flat rate</h3>
-        <p>$35–$40 a month. That is the whole price. No cut of your subscriptions, no per-reader fees, no new line items at renewal.</p>
-      </div>
-      <!-- COPY: value 2 — PDF-first -->
+      <!-- COPY: value 1 — PDF-first -->
       <div class="value">
         <h3>PDF-first</h3>
-        <p>Send us the same print-ready PDF that goes to your printer. Inkrun builds the web edition for you. No reformatting. No second workflow.</p>
+        <p>Send the print-ready PDF that goes to your printer. Inkrun builds the web edition. No second workflow.</p>
       </div>
-      <!-- COPY: value 3 — senior-readable -->
+      <!-- COPY: value 2 — senior-readable -->
       <div class="value">
         <h3>Readable at any age</h3>
-        <p>Type set at 20 pixels or more. High contrast. Tap targets a thumb can hit. Built for the readers who actually read community papers.</p>
+        <p>Type set at 20 pixels or more. High contrast. Tap targets a thumb can hit.</p>
       </div>
-      <!-- COPY: value 4 — full ownership -->
+      <!-- COPY: value 3 — full ownership -->
       <div class="value">
         <h3>You own it all</h3>
-        <p>Your subscriber list. Your payment data. Your reader relationships. Export everything, any time. We are a utility, never a landlord.</p>
+        <p>Your subscriber list, payment data, reader relationships. Export any time. A utility, never a landlord.</p>
       </div>
     </div>
   </section>
@@ -388,7 +504,86 @@ a:hover { color: var(--cyan-dark); }
     </svg>
   </div>
 
-  <!-- ================= SECTION 4: LEAVING IS EASY ================= -->
+  <!-- ================= SECTION 4: PRICING ================= -->
+  <section id="pricing" class="wrap">
+    <h2>One flat price</h2>
+    <!-- COPY: price display — every figure is single-sourced inside PRICE comments
+         for find-and-replace. Prose elsewhere says "one flat monthly rate". -->
+    <p class="price-figure"><span class="price-cur"><!-- PRICE MONTHLY USD -->$42 USD<!-- /PRICE MONTHLY USD --></span> / <span class="price-cur"><!-- PRICE MONTHLY CAD -->$56 CAD<!-- /PRICE MONTHLY CAD --></span> <span class="price-per">per month</span></p>
+    <!-- COPY: annual option — 15% off, billed once -->
+    <p>Or <span class="price-cur"><!-- PRICE ANNUAL USD -->$428 USD<!-- /PRICE ANNUAL USD --></span> / <span class="price-cur"><!-- PRICE ANNUAL CAD -->$571 CAD<!-- /PRICE ANNUAL CAD --></span> per year, billed once — 15% off.</p>
+    <!-- COPY: flat means flat -->
+    <p>Flat means flat. No cut of your subscriptions. Cancel anytime.</p>
+    <p><a class="btn" href="#waitlist">Join the waitlist</a></p>
+  </section>
+
+  <!-- ================= SECTION 5: COMPARISON ================= -->
+  <section id="compare" class="wrap">
+    <h2>How Inkrun compares</h2>
+    <!-- facts only, no adjectives — the table carries the contrast now.
+         Below 768px this restacks into one labeled block per competitor (CSS only) -->
+    <table class="compare">
+      <thead>
+        <tr>
+          <th scope="col"><span class="visually-hidden">Feature</span></th>
+          <th scope="col">Legacy flipbook platforms</th>
+          <th scope="col">National newsstand collectives</th>
+          <th scope="col" class="col-inkrun">Inkrun</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Monthly cost</th>
+          <td data-label="Monthly cost"><strong class="fee">$2,000+/yr</strong></td>
+          <td data-label="Monthly cost">entry fees + reader fees</td>
+          <td data-label="Monthly cost"><!-- PRICE MONTHLY USD -->$42 USD<!-- /PRICE MONTHLY USD --> / <!-- PRICE MONTHLY CAD -->$56 CAD<!-- /PRICE MONTHLY CAD --></td>
+        </tr>
+        <tr>
+          <th scope="row">Fee taken at reader checkout</th>
+          <td data-label="Fee taken at reader checkout">Varies</td>
+          <td data-label="Fee taken at reader checkout">Yes</td>
+          <td data-label="Fee taken at reader checkout">Never</td>
+        </tr>
+        <tr>
+          <th scope="row">You keep your subscriber list</th>
+          <td data-label="You keep your subscriber list">No</td>
+          <td data-label="You keep your subscriber list">No</td>
+          <td data-label="You keep your subscriber list">Yes, export anytime</td>
+        </tr>
+        <tr>
+          <th scope="row">You are the merchant of record</th>
+          <td data-label="You are the merchant of record">No</td>
+          <td data-label="You are the merchant of record">No</td>
+          <td data-label="You are the merchant of record">Yes — <a href="https://stripe.com/connect" target="_blank" rel="noopener">your own Stripe account</a></td>
+        </tr>
+        <tr>
+          <th scope="row">Ads in your edition</th>
+          <td data-label="Ads in your edition">—</td>
+          <td data-label="Ads in your edition">—</td>
+          <td data-label="Ads in your edition">Inkrun hosts no ads</td>
+        </tr>
+        <tr>
+          <th scope="row">Equity in the platform</th>
+          <td data-label="Equity in the platform">None</td>
+          <td data-label="Equity in the platform">None</td>
+          <td data-label="Equity in the platform">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="rule" aria-hidden="true">
+    <!-- woodcut motif: folded newspaper — decorative -->
+    <svg viewBox="0 0 40 34" width="38" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <path d="M13 5.5h20v18.5H13"/>
+      <path d="M6 9.5h22v19.5H6z"/>
+      <path d="M9.5 13.2h9"/>
+      <path d="M9.5 17.4h7.5M9.5 21.2h7.5M9.5 25h5"/>
+      <path d="M20.5 17.4h4M20.5 21.2h4"/>
+    </svg>
+  </div>
+
+  <!-- ================= SECTION 6: LEAVING IS EASY ================= -->
   <section id="leaving" class="wrap">
     <h2>Leaving is easy</h2>
     <!-- COPY: kill the migration fear — exactly three sentences -->
@@ -405,11 +600,11 @@ a:hover { color: var(--cyan-dark); }
     </svg>
   </div>
 
-  <!-- ================= SECTION 5: THE FORM ================= -->
+  <!-- ================= SECTION 7: THE FORM ================= -->
   <section id="waitlist" class="wrap">
     <h2>Join the waitlist</h2>
     <!-- COPY: form intro — invites, doesn't push -->
-    <p>We are opening Inkrun to a first group of Canadian publishers in the coming months. Leave your email and we will write when your spot is ready. No sales calls. No qualifying quiz. We just want to know who is out there.</p>
+    <p>We are opening Inkrun to a first group of Canadian publishers in the coming months. Leave your email and we will write when your spot is ready. No sales calls.</p>
 
     <!-- TALLY EMBED — FIND-AND-REPLACE: replace every FORM_ID in this file
          with the real Tally form ID (iframe src, direct link, fallback link).
@@ -424,7 +619,7 @@ a:hover { color: var(--cyan-dark); }
 
     <!-- revealed by JS if the Tally iframe is slow or fails to load -->
     <div id="form-fallback" hidden>
-      <p>The form is taking a while to load. You can <a href="https://tally.so/r/FORM_ID">open it in its own page</a>, or leave your email here and we will add you ourselves:</p>
+      <p>The form is taking a while. <a href="https://tally.so/r/FORM_ID">Open it in its own page</a>, or leave your email here:</p>
       <form id="quick-email" novalidate>
         <label for="quick-email-input">Email address</label>
         <div class="quick-row">
@@ -433,7 +628,7 @@ a:hover { color: var(--cyan-dark); }
         </div>
         <p id="quick-email-error" role="alert" hidden>That does not look like an email address.</p>
       </form>
-      <p class="form-alt">This opens your mail app with a note to hello@inkrun.ca.</p>
+      <p class="form-alt">This opens your mail app, addressed to hello@inkrun.ca.</p>
     </div>
   </section>
 
