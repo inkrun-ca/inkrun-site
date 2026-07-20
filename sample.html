@@ -134,19 +134,76 @@ a:hover { color: var(--cyan-dark); }
   border-radius: 2px;
 }
 
-/* --- sample edition viewer: custom chrome, no stock viewer UI.
-     Black on paper, 64px+ tap targets, cyan focus states. --- */
-.viewer { margin-top: 2rem; }
+/* ============================================================
+   SAMPLE EDITION READER — custom chrome, no stock viewer UI.
+   Black on paper, 64px+ tap targets, cyan focus states.
+   ============================================================ */
+.viewer-shell {
+  margin-top: 2rem;
+  /* A− / A+ zoom button label sizes. The plus sits one step larger so the
+     pair reads as "smaller / bigger" at a glance. Tune here if readers
+     miss them; the zoom factors themselves live in the ZOOMS array below. */
+  --zoom-a-minus-size: 1.25rem;
+  --zoom-a-plus-size: 1.625rem;
+  /* width of the desktop thumbnail rail when open */
+  --thumb-rail-width: 11rem;
+}
+.viewer-shell:fullscreen {
+  background: var(--paper);
+  overflow: auto;
+  padding: 1rem;
+}
+
+/* --- main row: optional thumbnail rail + book --- */
+.viewer-main { display: flex; align-items: stretch; }
+
+/* collapsible left thumbnail rail — desktop only */
+.thumb-rail { display: none; }
+@media (min-width: 48rem) {
+  .thumb-rail.open {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: var(--thumb-rail-width);
+    flex: none;
+    overflow-y: auto;
+    max-height: 80vh;
+    border: 1px solid var(--line);
+    border-right: 0;
+    padding: 0.75rem;
+  }
+}
+
+.book-frame {
+  flex: 1;
+  min-width: 0; /* lets the frame shrink beside the open rail */
+  border: 1px solid var(--line);
+  padding: 1rem;
+  overflow: auto; /* lets a zoomed book scroll inside the frame */
+}
+#book { margin-inline: auto; }
+.viewer .page, .page { background: #FFFFFF; }
+.page canvas { display: block; width: 100%; height: 100%; }
+.viewer-status {
+  margin: 0;
+  padding: 3rem 1rem;
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 1.125rem;
+}
+
+/* --- bottom toolbar: prev/next left, indicator centre, zoom + pages + fullscreen right --- */
 .viewer-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
   gap: 0.75rem;
   border: 1px solid var(--line);
-  border-bottom: 0;
+  border-top: 0;
   padding: 0.75rem;
 }
+.bar-left, .bar-right { display: flex; gap: 0.75rem; }
+.bar-right { margin-left: auto; }
 .vbtn {
   min-width: 64px;
   min-height: 64px;
@@ -165,6 +222,8 @@ a:hover { color: var(--cyan-dark); }
 .vbtn:active { transform: translateY(1px); }
 .vbtn[disabled] { opacity: 0.35; cursor: default; }
 .vbtn[disabled]:hover { background: var(--paper); }
+.vbtn-zoom-out { font-size: var(--zoom-a-minus-size); }
+.vbtn-zoom-in { font-size: var(--zoom-a-plus-size); }
 .page-indicator {
   margin: 0;
   padding: 0 0.5rem;
@@ -174,20 +233,76 @@ a:hover { color: var(--cyan-dark); }
   min-width: 9ch;
   text-align: center;
 }
-.book-frame {
-  border: 1px solid var(--line);
-  padding: 1rem;
-  overflow: auto; /* lets a zoomed book scroll inside the frame */
-}
-#book { margin-inline: auto; }
-.viewer .page { background: #FFFFFF; }
-.viewer .page canvas { display: block; width: 100%; height: 100%; }
-.viewer-status {
-  margin: 0;
-  padding: 3rem 1rem;
-  text-align: center;
+
+/* --- thumbnails (shared by the desktop rail and the mobile sheet) --- */
+.thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 64px;
+  min-height: 64px;
+  padding: 0.375rem;
+  background: #FFFFFF;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 4px;
   font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.thumb canvas { display: block; width: 100%; height: auto; }
+.thumb[aria-current="true"] { border-color: var(--cyan); border-width: 3px; }
+
+/* --- mobile thumbnail bottom sheet --- */
+.thumb-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.4);
+  z-index: 19;
+}
+.thumb-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  max-height: 65vh;
+  background: var(--paper);
+  border-top: 3px solid var(--ink);
+}
+/* the class display rules above override the UA [hidden] rule — restate it,
+   or the closed sheet + scrim sit invisibly over the page and eat every tap */
+.thumb-scrim[hidden], .thumb-sheet[hidden] { display: none; }
+.thumb-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.thumb-sheet-head p {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 700;
   font-size: 1.125rem;
+}
+.thumb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  overflow-y: auto;
+}
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+  .vbtn { transition: background-color 0.15s ease-in-out; }
+  .thumb-sheet { animation: sheet-up 0.2s ease-out; }
+  @keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
 }
 
 /* --- credit line: small and quiet --- */
@@ -210,12 +325,6 @@ a:hover { color: var(--cyan-dark); }
   font-size: 1.25rem;
 }
 .fine { font-size: 1rem; margin: 1.25rem 0 0; }
-
-/* --- motion: only when the reader allows it --- */
-@media (prefers-reduced-motion: no-preference) {
-  html { scroll-behavior: smooth; }
-  .vbtn { transition: background-color 0.15s ease-in-out; }
-}
 </style>
 </head>
 
@@ -252,19 +361,42 @@ a:hover { color: var(--cyan-dark); }
     <p class="lede">This is the June 26, 2026 edition of The Wainwright EDGE, exactly as a reader would see it.</p>
 
     <div class="viewer">
-      <!-- custom viewer chrome: prev/next, page indicator, zoom. 64px+ tap targets,
-           black on paper, cyan focus. No stock viewer UI anywhere. -->
+    <div class="viewer-shell" id="viewer-shell">
+      <div class="viewer-main">
+        <!-- collapsible thumbnail rail (desktop); the same buttons move
+             into the mobile bottom sheet — one set, two homes -->
+        <div class="thumb-rail" id="thumb-rail" aria-label="Page thumbnails"></div>
+        <div class="book-frame" id="book-frame">
+          <p class="viewer-status" id="viewer-status">The edition is loading&hellip;</p>
+          <div id="book"></div>
+        </div>
+      </div>
+      <!-- bottom toolbar: prev/next left, live indicator centre,
+           A−/A+ zoom + thumbnails + fullscreen right -->
       <div class="viewer-bar" role="group" aria-label="Edition controls">
-        <button class="vbtn" id="btn-prev" type="button" aria-label="Previous page">Prev</button>
+        <div class="bar-left">
+          <button class="vbtn" id="btn-prev" type="button" aria-label="Previous page">Prev</button>
+          <button class="vbtn" id="btn-next" type="button" aria-label="Next page">Next</button>
+        </div>
         <p class="page-indicator" id="page-indicator" role="status" aria-live="polite">Loading</p>
-        <button class="vbtn" id="btn-next" type="button" aria-label="Next page">Next</button>
-        <button class="vbtn" id="btn-zoom-out" type="button" aria-label="Zoom out">Zoom &minus;</button>
-        <button class="vbtn" id="btn-zoom-in" type="button" aria-label="Zoom in">Zoom +</button>
+        <div class="bar-right">
+          <button class="vbtn vbtn-zoom-out" id="btn-zoom-out" type="button" aria-label="Zoom out">A&minus;</button>
+          <button class="vbtn vbtn-zoom-in" id="btn-zoom-in" type="button" aria-label="Zoom in">A+</button>
+          <button class="vbtn" id="btn-thumbs" type="button" aria-expanded="false" aria-controls="thumb-rail thumb-sheet">Pages</button>
+          <button class="vbtn" id="btn-full" type="button" aria-label="Enter full screen">Full screen</button>
+        </div>
       </div>
-      <div class="book-frame" id="book-frame">
-        <p class="viewer-status" id="viewer-status">The edition is loading&hellip;</p>
-        <div id="book"></div>
+    </div>
+    </div>
+
+    <!-- mobile thumbnail bottom sheet -->
+    <div class="thumb-scrim" id="thumb-scrim" hidden></div>
+    <div class="thumb-sheet" id="thumb-sheet" role="dialog" aria-label="Pages" hidden>
+      <div class="thumb-sheet-head">
+        <p>Pages</p>
+        <button class="vbtn" id="btn-thumbs-close" type="button">Close</button>
       </div>
+      <div class="thumb-grid" id="thumb-grid"></div>
     </div>
 
     <noscript>
@@ -299,8 +431,12 @@ a:hover { color: var(--cyan-dark); }
   "use strict";
 
   var PDF_URL = "sample-edition.pdf";
-  var ZOOMS = [1, 1.3, 1.6, 2];
+  /* Zoom factors for the A− / A+ buttons. Bitmaps are re-rendered at every
+     step — never CSS stretch. 2.5x cap. */
+  var ZOOMS = [1, 1.25, 1.5, 1.75, 2, 2.5];
+  var THUMB_W = 256; /* thumbnail bitmap width, px */
 
+  var shellEl = document.getElementById("viewer-shell");
   var statusEl = document.getElementById("viewer-status");
   var bookEl = document.getElementById("book");
   var frameEl = document.getElementById("book-frame");
@@ -309,6 +445,13 @@ a:hover { color: var(--cyan-dark); }
   var btnNext = document.getElementById("btn-next");
   var btnZoomOut = document.getElementById("btn-zoom-out");
   var btnZoomIn = document.getElementById("btn-zoom-in");
+  var btnThumbs = document.getElementById("btn-thumbs");
+  var btnThumbsClose = document.getElementById("btn-thumbs-close");
+  var btnFull = document.getElementById("btn-full");
+  var rail = document.getElementById("thumb-rail");
+  var sheet = document.getElementById("thumb-sheet");
+  var scrim = document.getElementById("thumb-scrim");
+  var thumbGrid = document.getElementById("thumb-grid");
 
   function fail(message) {
     statusEl.innerHTML = message + ' <a href="sample-edition.pdf">Open the PDF directly</a>.';
@@ -341,8 +484,29 @@ a:hover { color: var(--cyan-dark); }
   var zoomIdx = 0;
   var pageCssW = 0;
   var pageCssH = 0;
-  var renderVersion = 0; /* bumped on every rebuild; stale renders check it */
-  var renderedAt = {};   /* page index -> renderVersion */
+  var renderVersion = 0; /* bumped on every rebuild; stale tasks check it */
+  var renderedAt = {};   /* page index -> renderVersion actually painted */
+  var queuedAt = {};     /* page index -> renderVersion already queued */
+  var pageCanvases = []; /* stable refs — StPageFlip moves page elements into
+                            its own wrappers, so canvases are NEVER looked up
+                            by DOM position after loadFromHTML */
+  var thumbButtons = [];
+  var thumbCanvases = [];
+  var thumbsStarted = false;
+  var thumbsOpen = false;
+  var prevSingle = null;
+
+  /* One serial queue for every render (pages and thumbnails alike).
+     PDF.js dislikes concurrent renders of the same page, and a single
+     chain keeps order: visible spread first, prefetch behind it. */
+  var queue = Promise.resolve();
+  function enqueue(task) {
+    queue = queue.then(task).catch(function (error) {
+      if (window.console && console.error) { console.error("Inkrun viewer:", error); }
+      if (!statusEl.hidden) { fail("The edition could not load here."); }
+    });
+    return queue;
+  }
 
   function isSingle() { return window.innerWidth < 768; }
 
@@ -350,6 +514,16 @@ a:hover { color: var(--cyan-dark); }
     if (isSingle()) { return numPages - 1; }
     /* two-page spreads with a lone cover: 0, 1, 3, 5, ... */
     return numPages % 2 === 1 ? numPages - 2 : numPages - 1;
+  }
+
+  /* In spread mode the lone cover page sits on the right half of the book
+     block; nudge the block so the cover reads as centred. */
+  function applyCoverOffset() {
+    if (!isSingle() && current === 0) {
+      bookEl.style.transform = "translateX(" + (-pageCssW / 2) + "px)";
+    } else {
+      bookEl.style.transform = "";
+    }
   }
 
   function syncChrome() {
@@ -368,53 +542,74 @@ a:hover { color: var(--cyan-dark); }
     btnNext.disabled = current >= lastSpreadStart();
     btnZoomOut.disabled = zoomIdx === 0;
     btnZoomIn.disabled = zoomIdx === ZOOMS.length - 1;
-  }
-
-  /* Lazy rendering: only the visible spread and its neighbours ever
-     become bitmaps — never the whole edition upfront. */
-  function renderPage(index, version) {
-    if (renderedAt[index] === version) { return Promise.resolve(); }
-    var pageEl = bookEl.children[index];
-    var canvas = pageEl ? pageEl.querySelector("canvas") : null;
-    if (!canvas) { return Promise.resolve(); }
-    return pdfDoc.getPage(index + 1).then(function (page) {
-      if (version !== renderVersion) { return; }
-      var dpr = Math.min(window.devicePixelRatio || 1, 2);
-      var base = page.getViewport({ scale: 1 });
-      var viewport = page.getViewport({ scale: (pageCssW / base.width) * dpr });
-      canvas.width = Math.round(viewport.width);
-      canvas.height = Math.round(viewport.height);
-      return page.render({ canvasContext: canvas.getContext("2d"), viewport: viewport })
-        .promise.then(function () {
-          if (version === renderVersion) { renderedAt[index] = version; }
-        });
-    }).catch(function () { /* a failed page stays blank; the rest still work */ });
-  }
-
-  function renderAround(center) {
-    var version = renderVersion;
-    var indexes = [];
-    function push(i) {
-      if (i >= 0 && i < numPages && indexes.indexOf(i) === -1) { indexes.push(i); }
+    for (var i = 0; i < thumbButtons.length; i++) {
+      var on = (i === current) || (!isSingle() && current > 0 && i === current + 1);
+      if (on) { thumbButtons[i].setAttribute("aria-current", "true"); }
+      else { thumbButtons[i].removeAttribute("aria-current"); }
     }
-    push(center);
-    if (!isSingle()) { push(center + 1); } /* the other half of the spread */
-    push(center - 1); push(center + 2); push(center + 3); push(center - 2);
-    var chain = Promise.resolve();
-    indexes.forEach(function (i) {
-      chain = chain.then(function () { return renderPage(i, version); });
-    });
-    return chain;
+    applyCoverOffset();
+  }
+
+  function renderPageTask(index) {
+    return function () {
+      var canvas = pageCanvases[index];
+      if (!canvas || queuedAt[index] !== renderVersion || renderedAt[index] === renderVersion) {
+        return Promise.resolve();
+      }
+      return pdfDoc.getPage(index + 1).then(function (page) {
+        if (queuedAt[index] !== renderVersion) { return; } /* stale rebuild */
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var base = page.getViewport({ scale: 1 });
+        var viewport = page.getViewport({ scale: (pageCssW / base.width) * dpr });
+        canvas.width = Math.round(viewport.width);
+        canvas.height = Math.round(viewport.height);
+        return page.render({ canvasContext: canvas.getContext("2d"), viewport: viewport })
+          .promise.then(function () {
+            if (queuedAt[index] === renderVersion) {
+              renderedAt[index] = renderVersion;
+              if (index === 0) { statusEl.hidden = true; }
+            }
+          });
+      });
+    };
+  }
+
+  function queuePage(index) {
+    if (index < 0 || index >= numPages) { return; }
+    if (renderedAt[index] === renderVersion || queuedAt[index] === renderVersion) { return; }
+    queuedAt[index] = renderVersion;
+    enqueue(renderPageTask(index));
+  }
+
+  /* Visible spread first, then a two-spread prefetch, then the previous
+     spread (for the back-flip). Rendering is lazy: nothing else is painted. */
+  function queueSpread(center) {
+    if (isSingle()) {
+      queuePage(center);
+      queuePage(center + 1); queuePage(center + 2); queuePage(center + 3);
+      queuePage(center - 1);
+    } else {
+      queuePage(center); queuePage(center + 1);
+      queuePage(center + 2); queuePage(center + 3);
+      queuePage(center + 4); queuePage(center + 5);
+      queuePage(center - 1); queuePage(center - 2);
+    }
+    return queue;
   }
 
   function buildBook(targetPage) {
     renderVersion += 1;
     renderedAt = {};
+    queuedAt = {};
     if (pageFlip) {
       try { pageFlip.destroy(); } catch (e) { /* older builds lack destroy */ }
       pageFlip = null;
+      /* PageFlip.destroy() removes the root element itself (block.remove());
+         put #book back in the frame before rebuilding. */
+      if (!bookEl.isConnected) { frameEl.appendChild(bookEl); }
     }
     bookEl.innerHTML = "";
+    pageCanvases = [];
 
     var single = isSingle();
     var frameW = frameEl.clientWidth - 34; /* padding + borders */
@@ -434,6 +629,7 @@ a:hover { color: var(--cyan-dark); }
       canvas.setAttribute("aria-label", "Page " + (i + 1) + " of " + numPages);
       pageEl.appendChild(canvas);
       bookEl.appendChild(pageEl);
+      pageCanvases.push(canvas);
     }
 
     pageFlip = new St.PageFlip(bookEl, {
@@ -446,18 +642,18 @@ a:hover { color: var(--cyan-dark); }
       drawShadow: true,
       maxShadowOpacity: 0.35,
       flippingTime: reduceMotion ? 0 : 650,
-      useMouseEvents: false,         /* buttons on desktop; touch swipe stays on */
+      useMouseEvents: true,          /* click-and-drag on desktop */
       swipeDistance: 30,
       clickEventForward: true,
       showPageCorners: false,
-      disableFlipByClick: true,
-      mobileScrollSupport: true
+      disableFlipByClick: true,      /* a drag flips; a plain click does not */
+      mobileScrollSupport: true      /* vertical touch scrolls; horizontal swipe flips */
     });
     pageFlip.loadFromHTML(bookEl.querySelectorAll(".page"));
     pageFlip.on("flip", function (event) {
       current = event.data;
       syncChrome();
-      renderAround(current);
+      queueSpread(current);
     });
 
     current = Math.min(targetPage || 0, numPages - 1);
@@ -465,9 +661,88 @@ a:hover { color: var(--cyan-dark); }
       try { pageFlip.turnToPage(current); } catch (e) { /* stays on page 1 */ }
     }
     syncChrome();
-    return renderAround(current);
+    return queueSpread(current);
   }
 
+  /* --- thumbnails: one set of buttons, rendered lazily on first open --- */
+  function renderThumbTask(index) {
+    return function () {
+      var canvas = thumbCanvases[index];
+      /* fresh canvases default to width 300, so width alone can't mark a
+         rendered thumb — use an explicit flag instead */
+      if (!canvas || canvas.dataset.rendered) { return Promise.resolve(); }
+      return pdfDoc.getPage(index + 1).then(function (page) {
+        var base = page.getViewport({ scale: 1 });
+        var viewport = page.getViewport({ scale: THUMB_W / base.width });
+        canvas.width = Math.round(viewport.width);
+        canvas.height = Math.round(viewport.height);
+        return page.render({ canvasContext: canvas.getContext("2d"), viewport: viewport })
+          .promise.then(function () { canvas.dataset.rendered = "true"; });
+      });
+    };
+  }
+
+  function buildThumbs() {
+    for (var i = 0; i < numPages; i++) {
+      (function (index) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "thumb";
+        btn.setAttribute("aria-label", "Go to page " + (index + 1));
+        var canvas = document.createElement("canvas");
+        canvas.setAttribute("aria-hidden", "true");
+        var label = document.createElement("span");
+        label.textContent = "Page " + (index + 1);
+        btn.appendChild(canvas);
+        btn.appendChild(label);
+        btn.addEventListener("click", function () {
+          closeThumbs();
+          if (!pageFlip) { return; }
+          /* navigate to the spread that contains this page */
+          var target = index;
+          if (!isSingle()) { target = index === 0 ? 0 : (index % 2 === 1 ? index : index - 1); }
+          if (target !== current) { pageFlip.flip(target); } /* the flip event syncs + queues */
+        });
+        thumbButtons.push(btn);
+        thumbCanvases.push(canvas);
+      })(i);
+    }
+  }
+
+  function startThumbRenders() {
+    if (thumbsStarted) { return; }
+    thumbsStarted = true;
+    for (var i = 0; i < numPages; i++) { enqueue(renderThumbTask(i)); }
+  }
+
+  function openThumbs() {
+    var i;
+    thumbsOpen = true;
+    btnThumbs.setAttribute("aria-expanded", "true");
+    startThumbRenders();
+    if (isSingle()) {
+      for (i = 0; i < thumbButtons.length; i++) { thumbGrid.appendChild(thumbButtons[i]); }
+      scrim.hidden = false;
+      sheet.hidden = false;
+    } else {
+      for (i = 0; i < thumbButtons.length; i++) { rail.appendChild(thumbButtons[i]); }
+      rail.classList.add("open");
+      buildBook(current); /* refit the book beside the rail */
+    }
+  }
+
+  function closeThumbs() {
+    if (!thumbsOpen) { return; }
+    thumbsOpen = false;
+    btnThumbs.setAttribute("aria-expanded", "false");
+    if (!sheet.hidden) { sheet.hidden = true; scrim.hidden = true; }
+    if (rail.classList.contains("open")) {
+      rail.classList.remove("open");
+      buildBook(current);
+    }
+  }
+
+  /* --- controls --- */
   btnPrev.addEventListener("click", function () { if (pageFlip) { pageFlip.flipPrev(); } });
   btnNext.addEventListener("click", function () { if (pageFlip) { pageFlip.flipNext(); } });
   btnZoomIn.addEventListener("click", function () {
@@ -476,7 +751,26 @@ a:hover { color: var(--cyan-dark); }
   btnZoomOut.addEventListener("click", function () {
     if (zoomIdx > 0) { zoomIdx -= 1; buildBook(current); }
   });
+  btnThumbs.addEventListener("click", function () {
+    if (thumbsOpen) { closeThumbs(); } else { openThumbs(); }
+  });
+  btnThumbsClose.addEventListener("click", closeThumbs);
+  scrim.addEventListener("click", closeThumbs);
+
+  if (!document.fullscreenEnabled) { btnFull.hidden = true; }
+  btnFull.addEventListener("click", function () {
+    if (document.fullscreenElement) { document.exitFullscreen(); }
+    else { shellEl.requestFullscreen(); }
+  });
+  document.addEventListener("fullscreenchange", function () {
+    var on = !!document.fullscreenElement;
+    btnFull.textContent = on ? "Exit" : "Full screen";
+    btnFull.setAttribute("aria-label", on ? "Exit full screen" : "Enter full screen");
+    if (pdfDoc) { buildBook(current); } /* refit to the new frame size */
+  });
+
   document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") { closeThumbs(); return; }
     if (!pageFlip) { return; }
     if (event.key === "ArrowLeft") { pageFlip.flipPrev(); }
     if (event.key === "ArrowRight") { pageFlip.flipNext(); }
@@ -486,7 +780,12 @@ a:hover { color: var(--cyan-dark); }
   window.addEventListener("resize", function () {
     if (!pdfDoc) { return; }
     window.clearTimeout(resizeTimer);
-    resizeTimer = window.setTimeout(function () { buildBook(current); }, 250);
+    resizeTimer = window.setTimeout(function () {
+      var single = isSingle();
+      if (prevSingle !== null && single !== prevSingle) { closeThumbs(); }
+      prevSingle = single;
+      buildBook(current);
+    }, 250);
   });
 
   pdfjsLib.getDocument({ url: PDF_URL, enableScripting: false }).promise
@@ -498,10 +797,9 @@ a:hover { color: var(--cyan-dark); }
     .then(function (firstPage) {
       var base = firstPage.getViewport({ scale: 1 });
       pageRatio = base.height / base.width;
-      return buildBook(0);
-    })
-    .then(function () {
-      statusEl.hidden = true;
+      buildThumbs();
+      prevSingle = isSingle();
+      buildBook(0);
     })
     .catch(function (error) {
       if (window.console && console.error) { console.error("Inkrun viewer:", error); }
