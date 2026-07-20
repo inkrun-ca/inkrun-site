@@ -1,0 +1,5 @@
+# Project markdown lives outside this repo (local-only) — never commit it
+inkrun-md/
+
+# macOS
+.DS_Store
