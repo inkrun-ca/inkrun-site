@@ -48,9 +48,10 @@ body {
 }
 
 .wrap {
-  max-width: 48rem;
+  /* fluid container: ~90vw up to 1100px, comfortable side margins */
+  width: min(90vw, 1100px);
   margin-inline: auto;
-  padding-inline: clamp(1.25rem, 6vw, 2.5rem);
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
 }
 
 /* --- skip link (visible on focus only) --- */
@@ -73,6 +74,16 @@ body {
   padding-block: 1.1rem;
 }
 .masthead-inner svg { flex: none; opacity: 0.8; }
+/* the wordmark links home — clickability must be obvious on hover/focus */
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 4px;
+}
+.brand-link:hover .wordmark { color: var(--cyan); text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 0.16em; }
 .wordmark { font-weight: 700; font-size: 1.375rem; letter-spacing: 0.01em; }
 /* classic thick/thin press rule */
 .pressrule {
@@ -110,14 +121,14 @@ h1 {
   margin: 0 0 1.25rem;
 }
 section { padding-block: clamp(2.75rem, 7vw, 4.25rem); }
-section p { margin: 0 0 1.25rem; max-width: 34em; }
+section p { margin: 0 0 1.25rem; max-width: 40em; }
 section p:last-child { margin-bottom: 0; }
 
 .lede {
   font-size: 1.375rem;
   line-height: 1.5;
   margin: 0 0 2rem;
-  max-width: 30em;
+  max-width: 36em;
 }
 
 /* --- links & focus (cyan = interactive only) --- */
@@ -229,8 +240,9 @@ a:hover { color: var(--cyan-dark); }
   font-size: 1.125rem;
 }
 
-/* --- bottom toolbar: prev/next left, indicator centre,
-     A−/A+ text size + magnifier page zoom + pages + fullscreen right --- */
+/* --- bottom toolbar: page controls (prev/indicator/next) left,
+     text size + zoom + pages + fullscreen right; wraps to two clean
+     rows on narrower widths --- */
 .viewer-bar {
   display: flex;
   flex-wrap: wrap;
@@ -240,8 +252,13 @@ a:hover { color: var(--cyan-dark); }
   border-top: 0;
   padding: 0.75rem;
 }
-.bar-left, .bar-right { display: flex; gap: 0.75rem; }
+.bar-left, .bar-right { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
 .bar-right { margin-left: auto; }
+@media (max-width: 64rem) {
+  /* two clean rows: page controls on top, everything else below */
+  .bar-left { flex-basis: 100%; }
+  .bar-right { margin-left: 0; }
+}
 .vbtn {
   min-width: 64px;
   min-height: 64px;
@@ -249,7 +266,7 @@ a:hover { color: var(--cyan-dark); }
   background: var(--paper);
   color: var(--ink);
   border: 2px solid var(--ink);
-  border-radius: 4px;
+  border-radius: 5px;
   font-family: var(--sans);
   font-weight: 700;
   font-size: 1.25rem;
@@ -260,6 +277,34 @@ a:hover { color: var(--cyan-dark); }
 .vbtn:active { transform: translateY(1px); }
 .vbtn[disabled] { opacity: 0.35; cursor: default; }
 .vbtn[disabled]:hover { background: var(--paper); }
+/* tooltips on hover AND keyboard focus (1.4.13: hoverable, persistent,
+   Escape-dismissible; desktop only — they would crowd small screens) */
+@media (min-width: 48rem) {
+  .vbtn[data-tip] { position: relative; }
+  .vbtn[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 50%;
+    bottom: 100%; /* no gap — the pointer can move onto the tooltip */
+    transform: translateX(-50%);
+    padding: 0.35rem 0.6rem;
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-weight: 400;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.12s ease-in-out;
+    z-index: 6;
+  }
+  .vbtn[data-tip]:hover::after,
+  .vbtn[data-tip]:focus-visible::after { opacity: 1; }
+  .viewer-shell.tips-off .vbtn[data-tip]::after { display: none; } /* dismissed via Escape */
+}
 .vbtn-text-out { font-size: var(--text-a-minus-size); }
 .vbtn-text-in { font-size: var(--text-a-plus-size); }
 /* magnifier page-zoom buttons: inline SVG icons, woodcut stroke style */
@@ -291,7 +336,7 @@ a:hover { color: var(--cyan-dark); }
   background: #FFFFFF;
   color: var(--ink);
   border: 2px solid var(--ink);
-  border-radius: 4px;
+  border-radius: 5px;
   font-family: var(--sans);
   font-weight: 700;
   font-size: 1rem;
@@ -352,6 +397,40 @@ a:hover { color: var(--cyan-dark); }
   @keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
 }
 
+/* --- waitlist CTA below the viewer --- */
+.viewer-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+.viewer-cta p { margin: 0; max-width: none; }
+.viewer-cta .btn { margin-left: auto; }
+/* cyan CTA button (same as index.html): 64px tap target */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  padding: 0.6rem 2.25rem;
+  background: var(--cyan);
+  color: #FFFFFF;
+  border: 2px solid var(--ink);
+  border-radius: 5px;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn:hover { background: var(--cyan-dark); color: #FFFFFF; }
+.btn:active { transform: translateY(1px); }
+
 /* --- credit line: small and quiet --- */
 .credit { font-size: 1rem; margin-top: 1rem; }
 
@@ -377,18 +456,21 @@ a:hover { color: var(--cyan-dark); }
 
 <body>
 <a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#viewer-shell">Skip to the edition viewer</a>
 
 <!-- ================= MASTHEAD ================= -->
 <header class="masthead">
   <div class="wrap masthead-inner">
-    <!-- woodcut motif: ink roller (brayer) — decorative -->
-    <svg viewBox="0 0 48 34" width="46" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-      <rect x="4" y="13.5" width="27.5" height="11" rx="5.5"/>
-      <path d="M10 17.2h5.5M9.5 21h8.5"/>
-      <path d="M31.5 19 40.3 11.6"/>
-      <path d="M37.9 8.3 43.3 14.4"/>
-    </svg>
-    <span class="wordmark">Inkrun</span>
+    <a class="brand-link" href="index.html" aria-label="Inkrun — back to the home page">
+      <!-- woodcut motif: ink roller (brayer) — decorative -->
+      <svg viewBox="0 0 48 34" width="46" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <rect x="4" y="13.5" width="27.5" height="11" rx="5.5"/>
+        <path d="M10 17.2h5.5M9.5 21h8.5"/>
+        <path d="M31.5 19 40.3 11.6"/>
+        <path d="M37.9 8.3 43.3 14.4"/>
+      </svg>
+      <span class="wordmark">Inkrun</span>
+    </a>
     <!-- registration strip: printer's color-control marks — pure CSS, decorative.
          Five squares (cyan, magenta, yellow, ink, 18% grey) at logo-mark height,
          each offset 1–3px so the strip reads as misregistered -->
@@ -407,7 +489,7 @@ a:hover { color: var(--cyan-dark); }
     <!-- COPY: what this is — the June 26, 2026 Wainwright EDGE, exactly as a reader would see it -->
     <p class="lede">This is the June 26, 2026 edition of The Wainwright EDGE, exactly as a reader would see it.</p>
 
-    <div class="viewer">
+    <div class="viewer" role="region" aria-roledescription="carousel" aria-label="Sample edition viewer">
     <div class="viewer-shell" id="viewer-shell">
       <div class="viewer-main">
         <!-- thumbnail rail (desktop, open by default at >=1024px); the same
@@ -415,7 +497,7 @@ a:hover { color: var(--cyan-dark); }
         <div class="thumb-rail" id="thumb-rail" aria-label="Page thumbnails">
           <div class="thumb-rail-head">
             <p>Pages</p>
-            <button class="vbtn vbtn-chev" id="btn-rail-min" type="button" aria-label="Hide page thumbnails">
+            <button class="vbtn vbtn-chev" id="btn-rail-min" type="button" aria-label="Hide page thumbnails" data-tip="Hide thumbnails">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                 <path d="M14.5 5.3 7.8 12l6.7 6.7"/>
               </svg>
@@ -423,38 +505,38 @@ a:hover { color: var(--cyan-dark); }
           </div>
           <div class="thumb-rail-list" id="thumb-rail-list"></div>
         </div>
-        <div class="book-frame" id="book-frame">
+        <div class="book-frame" id="book-frame" tabindex="0" aria-label="Newspaper pages. Left and right arrows flip pages, plus and minus zoom, Home and End jump to the first and last page.">
           <p class="viewer-status" id="viewer-status">The edition is loading&hellip;</p>
           <div id="book-pan"><div id="book"></div></div>
         </div>
       </div>
-      <!-- bottom toolbar: prev/next left, live indicator centre,
+      <!-- bottom toolbar: page controls (prev/indicator/next) left,
            A−/A+ interface text size, magnifier page zoom, thumbnails, fullscreen right -->
       <div class="viewer-bar" role="group" aria-label="Edition controls">
         <div class="bar-left">
-          <button class="vbtn" id="btn-prev" type="button" aria-label="Previous page">Prev</button>
-          <button class="vbtn" id="btn-next" type="button" aria-label="Next page">Next</button>
+          <button class="vbtn" id="btn-prev" type="button" aria-label="Previous page" data-tip="Previous page">Prev</button>
+          <p class="page-indicator" id="page-indicator" role="status" aria-live="polite">Loading</p>
+          <button class="vbtn" id="btn-next" type="button" aria-label="Next page" data-tip="Next page">Next</button>
         </div>
-        <p class="page-indicator" id="page-indicator" role="status" aria-live="polite">Loading</p>
         <div class="bar-right">
-          <button class="vbtn vbtn-text-out" id="btn-text-out" type="button" aria-label="Decrease interface text size">A&minus;</button>
-          <button class="vbtn vbtn-text-in" id="btn-text-in" type="button" aria-label="Increase interface text size">A+</button>
-          <button class="vbtn vbtn-mag" id="btn-zoom-out" type="button" aria-label="Zoom page out">
+          <button class="vbtn vbtn-text-out" id="btn-text-out" type="button" aria-label="Decrease interface text size" data-tip="Smaller interface text">A&minus;</button>
+          <button class="vbtn vbtn-text-in" id="btn-text-in" type="button" aria-label="Increase interface text size" data-tip="Bigger interface text">A+</button>
+          <button class="vbtn vbtn-mag" id="btn-zoom-out" type="button" aria-label="Zoom page out" data-tip="Zoom out">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
               <circle cx="10.3" cy="10.5" r="6.4"/>
               <path d="M15.1 15.3 20.4 20.3"/>
               <path d="M7.8 10.4h5.1"/>
             </svg>
           </button>
-          <button class="vbtn vbtn-mag" id="btn-zoom-in" type="button" aria-label="Zoom page in">
+          <button class="vbtn vbtn-mag" id="btn-zoom-in" type="button" aria-label="Zoom page in" data-tip="Zoom in">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
               <circle cx="10.3" cy="10.5" r="6.4"/>
               <path d="M15.1 15.3 20.4 20.3"/>
               <path d="M7.8 10.4h5.1M10.3 7.9v5.2"/>
             </svg>
           </button>
-          <button class="vbtn" id="btn-thumbs" type="button" aria-expanded="false" aria-controls="thumb-rail thumb-sheet">Pages</button>
-          <button class="vbtn" id="btn-full" type="button" aria-label="Enter full screen">Full screen</button>
+          <button class="vbtn" id="btn-thumbs" type="button" aria-expanded="false" aria-controls="thumb-rail thumb-sheet" aria-label="Page thumbnails" data-tip="Thumbnails">Pages</button>
+          <button class="vbtn" id="btn-full" type="button" aria-label="Enter full screen" data-tip="Fullscreen">Full screen</button>
         </div>
       </div>
     </div>
@@ -465,7 +547,7 @@ a:hover { color: var(--cyan-dark); }
     <div class="thumb-sheet" id="thumb-sheet" role="dialog" aria-label="Pages" hidden>
       <div class="thumb-sheet-head">
         <p>Pages</p>
-        <button class="vbtn" id="btn-thumbs-close" type="button">Close</button>
+        <button class="vbtn" id="btn-thumbs-close" type="button" aria-label="Close page thumbnails">Close</button>
       </div>
       <div class="thumb-grid" id="thumb-grid"></div>
     </div>
@@ -473,6 +555,12 @@ a:hover { color: var(--cyan-dark); }
     <noscript>
       <p>This demo needs JavaScript. You can <a href="sample-edition.pdf">open the PDF directly</a>.</p>
     </noscript>
+
+    <!-- COPY: waitlist CTA — one line plus the button -->
+    <div class="viewer-cta">
+      <p>Like what you see? Join the waitlist.</p>
+      <a class="btn" href="index.html#waitlist">Join the waitlist</a>
+    </div>
 
     <!-- COPY: credit — small and quiet -->
     <p class="credit">Edition courtesy of The Wainwright EDGE, Wainwright, Alberta.</p>
@@ -489,7 +577,8 @@ a:hover { color: var(--cyan-dark); }
   <a href="mailto:peter@inkrun.ca">peter@inkrun.ca</a>
   <!-- COPY: privacy note (CASL-conscious — keep verbatim) -->
   <p class="fine">We email you about Inkrun. Nothing else. Unsubscribe anytime.</p>
-  <p class="fine">&copy; 2026 Inkrun &middot; <a href="https://inkrun.ca/">inkrun.ca</a></p>
+  <!-- copyright — year is set dynamically by the script below -->
+  <p class="fine">© <span id="year">2026</span> Inkrun · inkrun.ca</p>
 </footer>
 
 <!-- Viewer scripts load on this page only. index.html keeps its zero-dependency rule.
@@ -505,11 +594,11 @@ a:hover { color: var(--cyan-dark); }
   var PAGES_DIR = "sample-pages/";
   /* Page-zoom factors for the magnifier buttons: a pure CSS-transform layer
      over the current spread — the 2600px source covers every step, nothing
-     re-renders. 0.5x steps, 2.5x cap. */
-  var ZOOMS = [1, 1.5, 2, 2.5];
+     re-renders. 0.5x steps, 3.5x cap. */
+  var ZOOMS = [1, 1.5, 2, 2.5, 3, 3.5];
   /* UI text-size steps for the A− / A+ buttons, % of the reader's root font
      size. They grow the interface only — never the newspaper pages. */
-  var TEXT_SIZES = [80, 90, 100, 115, 130, 145];
+  var TEXT_SIZES = [80, 100, 130, 145];
   var TEXT_SIZE_KEY = "inkrun-ui-text-size";
   var RAIL_KEY = "inkrun-rail-open";
 
@@ -569,7 +658,7 @@ a:hover { color: var(--cyan-dark); }
   var pageFlip = null;
   var current = 0;       /* virtual page index */
   var zoomIdx = 0;
-  var textIdx = 2;       /* TEXT_SIZES index of 100% */
+  var textIdx = 1;       /* TEXT_SIZES index of 100% */
   var panX = 0;
   var panY = 0;
   var pageCssW = 0;
@@ -737,15 +826,18 @@ a:hover { color: var(--cyan-dark); }
       var vp = vpages[i];
       var pageEl = document.createElement("div");
       pageEl.className = vp.half === null ? "page" : (vp.half === 0 ? "page half" : "page half right");
+      /* APG carousel pattern: each page is a labeled group ("Page N of M") */
+      pageEl.setAttribute("role", "group");
+      pageEl.setAttribute("aria-roledescription", "page");
+      pageEl.setAttribute("aria-label", vp.folio
+        ? "Page " + vp.folio + " of " + totalPrint
+        : "Blank page");
       var img = null;
       if (vp.pdf >= 0) {
         img = document.createElement("img");
         img.dataset.src = PAGES_DIR + manifest.pages[vp.pdf].page;
-        img.alt = "Page " + vp.folio + " of " + totalPrint;
+        img.alt = "";
         img.draggable = false;
-      } else {
-        pageEl.setAttribute("role", "img");
-        pageEl.setAttribute("aria-label", "Blank page");
       }
       if (img) { pageEl.appendChild(img); }
       bookEl.appendChild(pageEl);
@@ -1025,12 +1117,36 @@ a:hover { color: var(--cyan-dark); }
     if (manifest) { buildBook(current); } /* refit to the new frame size */
   });
 
+  /* Viewer keyboard control (WCAG 2.1.1): arrows flip, +/- zoom, Home/End
+     jump to first/last. Scoped to the viewer (2.1.4 for the +/- character
+     keys) and never fired from form fields or focused controls — buttons
+     keep their own Enter/Space behaviour. */
+  var viewerRegion = document.querySelector(".viewer");
   document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") { closeThumbs(); return; }
+    if (event.key === "Escape") {
+      closeThumbs();
+      shellEl.classList.add("tips-off"); /* dismiss any open tooltip (1.4.13) */
+      return;
+    }
     if (!pageFlip) { return; }
-    if (event.key === "ArrowLeft") { pageFlip.flipPrev(); }
-    if (event.key === "ArrowRight") { pageFlip.flipNext(); }
+    var t = event.target;
+    var tag = t && t.tagName ? t.tagName.toLowerCase() : "";
+    if (tag === "input" || tag === "textarea" || tag === "select" || (t && t.isContentEditable)) { return; }
+    if (tag === "button" || tag === "a") { return; }
+    if (t !== document.body && !(viewerRegion && viewerRegion.contains(t))) { return; }
+    if (event.key === "ArrowLeft") { event.preventDefault(); pageFlip.flipPrev(); }
+    else if (event.key === "ArrowRight") { event.preventDefault(); pageFlip.flipNext(); }
+    else if (event.key === "+" || event.key === "=") { event.preventDefault(); zoomTo(zoomIdx + 1); }
+    else if (event.key === "-" || event.key === "_") { event.preventDefault(); zoomTo(zoomIdx - 1); }
+    else if (event.key === "Home") { event.preventDefault(); pageFlip.flip(0); }
+    else if (event.key === "End") { event.preventDefault(); pageFlip.flip(lastSpreadStart()); }
   });
+  /* tooltips re-arm on the next interaction after an Escape dismissal */
+  document.addEventListener("pointerdown", function () { shellEl.classList.remove("tips-off"); });
+  document.addEventListener("focusin", function () { shellEl.classList.remove("tips-off"); });
+
+  /* dynamic copyright year (same as index.html) */
+  document.getElementById("year").textContent = new Date().getFullYear();
 
   var resizeTimer = null;
   window.addEventListener("resize", function () {

@@ -6,7 +6,7 @@
 
 <!-- SEO -->
 <title>Inkrun — Flat-rate web editions for Canadian community newspapers</title>
-<meta name="description" content="Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate, in USD or CAD. No cut of your subscriptions. Your readers stay yours.">
+<meta name="description" content="Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate in CAD. No cut of your subscriptions. Your readers stay yours.">
 <link rel="canonical" href="https://inkrun.ca/">
 <meta name="theme-color" content="#FDFDF8">
 
@@ -16,7 +16,7 @@
 <meta property="og:locale" content="en_CA">
 <meta property="og:url" content="https://inkrun.ca/">
 <meta property="og:title" content="Inkrun — Flat-rate web editions for Canadian community newspapers">
-<meta property="og:description" content="Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate, in USD or CAD. No cut of your subscriptions. Your readers stay yours.">
+<meta property="og:description" content="Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate in CAD. No cut of your subscriptions. Your readers stay yours.">
 
 <!-- Favicon: folded-newspaper woodcut motif in cyan (see inkrun-md/DESIGN.md > Craft vocabulary) -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2034'%20fill='none'%20stroke='%230077A8'%20stroke-width='2.8'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M13%205.5h20v18.5H13'/%3E%3Cpath%20d='M6%209.5h22v19.5H6z'/%3E%3Cpath%20d='M9.5%2013.2h9M9.5%2017.4h7.5M9.5%2021.2h7.5M9.5%2025h5M20.5%2017.4h4M20.5%2021.2h4'/%3E%3C/svg%3E">
@@ -58,9 +58,10 @@ body {
 ::selection { background: rgba(242, 183, 5, 0.55); } /* yellow marker */
 
 .wrap {
-  max-width: 48rem;
+  /* fluid container: ~90vw up to 1100px, comfortable side margins */
+  width: min(90vw, 1100px);
   margin-inline: auto;
-  padding-inline: clamp(1.25rem, 6vw, 2.5rem);
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
 }
 
 /* --- skip link (visible on focus only) --- */
@@ -146,14 +147,14 @@ h2::after {
   margin-top: 0.7rem;
 }
 section { padding-block: clamp(2.75rem, 7vw, 4.25rem); }
-section p { margin: 0 0 1.25rem; max-width: 34em; }
+section p { margin: 0 0 1.25rem; max-width: 40em; }
 section p:last-child { margin-bottom: 0; }
 
 .lede {
   font-size: 1.375rem;
   line-height: 1.5;
   margin: 0 0 2rem;
-  max-width: 30em;
+  max-width: 36em;
 }
 
 /* yellow marker highlight — behind ink words only, never yellow text */
@@ -296,9 +297,9 @@ a:hover { color: var(--cyan-dark); }
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  max-width: 48rem;
+  width: min(90vw, 1100px);
   margin-inline: auto;
-  padding-inline: clamp(1.25rem, 6vw, 2.5rem);
+  padding-inline: clamp(1.25rem, 4vw, 2.5rem);
   color: var(--ink);
 }
 .rule::before, .rule::after {
@@ -434,7 +435,7 @@ a:hover { color: var(--cyan-dark); }
          ALTERNATE (swap manually): "Your paper, online. Your readers, yours." -->
     <h1>Your paper. Your readers. Your paper online.</h1>
     <!-- COPY: subheadline — carries the pricing, no figures (those live in #pricing only) -->
-    <p class="lede">Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate, in USD or CAD. <mark>No cut of your subscriptions.</mark></p>
+    <p class="lede">Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate in CAD. <mark>No cut of your subscriptions.</mark></p>
     <!-- COPY: call to action (scrolls to the form) -->
     <p><a class="btn" href="#waitlist">Join the waitlist</a></p>
   </section>
@@ -509,11 +510,11 @@ a:hover { color: var(--cyan-dark); }
     <h2>One flat price</h2>
     <!-- COPY: price display — every figure is single-sourced inside PRICE comments
          for find-and-replace. Prose elsewhere says "one flat monthly rate". -->
-    <p class="price-figure"><span class="price-cur"><!-- PRICE MONTHLY USD -->$42 USD<!-- /PRICE MONTHLY USD --></span> / <span class="price-cur"><!-- PRICE MONTHLY CAD -->$56 CAD<!-- /PRICE MONTHLY CAD --></span> <span class="price-per">per month</span></p>
+    <p class="price-figure"><span class="price-cur"><!-- PRICE MONTHLY CAD -->$48 CAD<!-- /PRICE MONTHLY CAD --></span> <span class="price-per">per month</span></p>
     <!-- COPY: annual option — 15% off, billed once -->
-    <p>Or <span class="price-cur"><!-- PRICE ANNUAL USD -->$428 USD<!-- /PRICE ANNUAL USD --></span> / <span class="price-cur"><!-- PRICE ANNUAL CAD -->$571 CAD<!-- /PRICE ANNUAL CAD --></span> per year, billed once — 15% off.</p>
+    <p>Or <span class="price-cur"><!-- PRICE ANNUAL CAD -->$490 CAD<!-- /PRICE ANNUAL CAD --></span> per year, billed once — 15% off.</p>
     <!-- FOUNDING OFFER -->
-    <p>Founding publishers: the <mark>first 20</mark> on the waitlist get their first 3 months free.</p>
+    <p>Founding publishers: the <mark>first 20</mark> on the waitlist get 80% off.</p>
     <!-- /FOUNDING OFFER -->
     <!-- COPY: flat means flat -->
     <p>Flat means flat. No cut of your subscriptions. Cancel anytime.</p>
@@ -539,7 +540,7 @@ a:hover { color: var(--cyan-dark); }
           <th scope="row">Monthly cost</th>
           <td data-label="Monthly cost"><strong class="fee">$2,000+/yr</strong></td>
           <td data-label="Monthly cost">entry fees + reader fees</td>
-          <td data-label="Monthly cost"><!-- PRICE MONTHLY USD -->$42 USD<!-- /PRICE MONTHLY USD --> / <!-- PRICE MONTHLY CAD -->$56 CAD<!-- /PRICE MONTHLY CAD --></td>
+          <td data-label="Monthly cost"><!-- PRICE MONTHLY CAD -->$48 CAD<!-- /PRICE MONTHLY CAD --></td>
         </tr>
         <tr>
           <th scope="row">Fee taken at reader checkout</th>
@@ -630,7 +631,7 @@ a:hover { color: var(--cyan-dark); }
     <!-- COPY: form intro — invites, doesn't push -->
     <p>We are opening Inkrun to a first group of Canadian publishers in the coming months. Leave your email and we will write when your spot is ready.</p>
     <!-- FOUNDING OFFER -->
-    <p>The first 20 founding publishers get 3 months free at launch. No card. No sales calls. Just your email.</p>
+    <p>The first 20 founding publishers get 80% off at launch. No card. No sales calls. Just your email.</p>
     <!-- /FOUNDING OFFER -->
 
     <!-- TALLY EMBED — FIND-AND-REPLACE: replace every FORM_ID in this file
