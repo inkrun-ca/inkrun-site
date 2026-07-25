@@ -1,0 +1,216 @@
+{
+  "source": "EDGJun26_2026.pdf",
+  "pageCount": 19,
+  "printCount": 20,
+  "pages": [
+    {
+      "page": "page-01.webp",
+      "thumb": "thumb-01.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        1,
+        1
+      ]
+    },
+    {
+      "page": "page-02.webp",
+      "thumb": "thumb-02.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        2,
+        2
+      ]
+    },
+    {
+      "page": "page-03.webp",
+      "thumb": "thumb-03.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        3,
+        3
+      ]
+    },
+    {
+      "page": "page-04.webp",
+      "thumb": "thumb-04.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        4,
+        4
+      ]
+    },
+    {
+      "page": "page-05.webp",
+      "thumb": "thumb-05.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        5,
+        5
+      ]
+    },
+    {
+      "page": "page-06.webp",
+      "thumb": "thumb-06.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        6,
+        6
+      ]
+    },
+    {
+      "page": "page-07.webp",
+      "thumb": "thumb-07.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        7,
+        7
+      ]
+    },
+    {
+      "page": "page-08.webp",
+      "thumb": "thumb-08.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        8,
+        8
+      ]
+    },
+    {
+      "page": "page-09.webp",
+      "thumb": "thumb-09.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        9,
+        9
+      ]
+    },
+    {
+      "page": "page-10.webp",
+      "thumb": "thumb-10.webp",
+      "width": 2600,
+      "height": 2005,
+      "truck": true,
+      "print": [
+        10,
+        11
+      ]
+    },
+    {
+      "page": "page-11.webp",
+      "thumb": "thumb-11.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        12,
+        12
+      ]
+    },
+    {
+      "page": "page-12.webp",
+      "thumb": "thumb-12.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        13,
+        13
+      ]
+    },
+    {
+      "page": "page-13.webp",
+      "thumb": "thumb-13.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        14,
+        14
+      ]
+    },
+    {
+      "page": "page-14.webp",
+      "thumb": "thumb-14.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        15,
+        15
+      ]
+    },
+    {
+      "page": "page-15.webp",
+      "thumb": "thumb-15.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        16,
+        16
+      ]
+    },
+    {
+      "page": "page-16.webp",
+      "thumb": "thumb-16.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        17,
+        17
+      ]
+    },
+    {
+      "page": "page-17.webp",
+      "thumb": "thumb-17.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        18,
+        18
+      ]
+    },
+    {
+      "page": "page-18.webp",
+      "thumb": "thumb-18.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        19,
+        19
+      ]
+    },
+    {
+      "page": "page-19.webp",
+      "thumb": "thumb-19.webp",
+      "width": 2600,
+      "height": 3991,
+      "truck": false,
+      "print": [
+        20,
+        20
+      ]
+    }
+  ]
+}

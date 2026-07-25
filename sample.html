@@ -155,27 +155,48 @@ a:hover { color: var(--cyan-dark); }
   padding: 1rem;
 }
 
-/* --- main row: optional thumbnail rail + book --- */
+/* --- main row: thumbnail rail + book --- */
 .viewer-main { display: flex; align-items: stretch; }
 
-/* collapsible left thumbnail rail — desktop only. Scrolls independently
+/* thumbnail rail — desktop only. OPEN by default at >=1024px; the chevron
+   minimizes it and the choice persists. The list scrolls independently
    (overflow + overscroll-behavior keep the wheel on the rail). */
 .thumb-rail { display: none; }
 @media (min-width: 48rem) {
   .thumb-rail.open {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
     width: var(--thumb-rail-width);
     flex: none;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    max-height: 80vh;
     border: 1px solid var(--line);
     border-right: 0;
-    padding: 0.75rem;
   }
 }
+.thumb-rail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.25rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+}
+.thumb-rail-head p {
+  margin: 0;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+.thumb-rail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-height: 80vh;
+  padding: 0.75rem;
+}
+/* the minimize chevron: smaller than a toolbar button but still a 64px target */
+.vbtn-chev { min-width: 64px; min-height: 64px; padding: 0.25rem; border-width: 0; }
+.vbtn-chev svg { width: 1.5rem; height: 1.5rem; }
 
 .book-frame {
   flex: 1;
@@ -188,10 +209,18 @@ a:hover { color: var(--cyan-dark); }
 }
 .book-frame.zoomed { cursor: grab; }
 .book-frame.panning { cursor: grabbing; }
-#book-pan { will-change: transform; }
+#book-pan { will-change: transform; transform-origin: 0 0; }
 #book { margin: 0; }
-.viewer .page, .page { background: #FFFFFF; }
-.page canvas { display: block; width: 100%; height: 100%; }
+.viewer .page, .page { background: #FFFFFF; overflow: hidden; }
+.page img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  -webkit-user-drag: none; /* image drag must not fight the flip/pan gestures */
+}
+/* a truck half: the wide sheet at 200% width, right half shifted a page over */
+.page.half img { width: 200%; }
+.page.half.right img { margin-left: -100%; }
 .viewer-status {
   margin: 0;
   padding: 3rem 1rem;
@@ -247,9 +276,9 @@ a:hover { color: var(--cyan-dark); }
 }
 
 /* --- thumbnails (shared by the desktop rail and the mobile sheet).
-     TRUE aspect ratio per page: the bitmap keeps the PDF page's own
-     proportions, the CSS width is set per thumb (trucks span full width),
-     height stays auto — nothing is forced into a fixed box. --- */
+     TRUE aspect ratio per page from the manifest: the image keeps the
+     page's own proportions, the CSS width is set per thumb (trucks span
+     full width), height stays auto — nothing is forced into a fixed box. --- */
 .thumb {
   display: flex;
   flex-direction: column;
@@ -269,7 +298,7 @@ a:hover { color: var(--cyan-dark); }
   line-height: 1.2;
   cursor: pointer;
 }
-.thumb canvas { display: block; height: auto; }
+.thumb img { display: block; height: auto; }
 .thumb-num { text-align: center; }
 .thumb[aria-current="true"] { border-color: var(--cyan); border-width: 3px; }
 .thumb-truck { grid-column: span 2; } /* mobile sheet: a truck spans two cells */
@@ -381,9 +410,19 @@ a:hover { color: var(--cyan-dark); }
     <div class="viewer">
     <div class="viewer-shell" id="viewer-shell">
       <div class="viewer-main">
-        <!-- collapsible thumbnail rail (desktop); the same buttons move
-             into the mobile bottom sheet — one set, two homes -->
-        <div class="thumb-rail" id="thumb-rail" aria-label="Page thumbnails"></div>
+        <!-- thumbnail rail (desktop, open by default at >=1024px); the same
+             buttons move into the mobile bottom sheet — one set, two homes -->
+        <div class="thumb-rail" id="thumb-rail" aria-label="Page thumbnails">
+          <div class="thumb-rail-head">
+            <p>Pages</p>
+            <button class="vbtn vbtn-chev" id="btn-rail-min" type="button" aria-label="Hide page thumbnails">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                <path d="M14.5 5.3 7.8 12l6.7 6.7"/>
+              </svg>
+            </button>
+          </div>
+          <div class="thumb-rail-list" id="thumb-rail-list"></div>
+        </div>
         <div class="book-frame" id="book-frame">
           <p class="viewer-status" id="viewer-status">The edition is loading&hellip;</p>
           <div id="book-pan"><div id="book"></div></div>
@@ -454,27 +493,25 @@ a:hover { color: var(--cyan-dark); }
 </footer>
 
 <!-- Viewer scripts load on this page only. index.html keeps its zero-dependency rule.
-     PDF.js 3.11.174 (pinned) renders pages to canvases, lazily;
-     StPageFlip 2.0.7 (pinned) provides the page-turn. See inkrun-md/DECISIONS.md. -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+     Pages are pre-rendered WebP images (tools/pdf-to-pages.py — the seed of the
+     upload pipeline); StPageFlip 2.0.7 (pinned) provides the page-turn.
+     See inkrun-md/DECISIONS.md. -->
 <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 <script>
 (function () {
   "use strict";
 
-  var PDF_URL = "sample-edition.pdf";
-  /* Page-zoom factors for the magnifier buttons. Bitmaps are re-rendered at
-     every step — never CSS stretch. 2.5x cap. */
-  var ZOOMS = [1, 1.25, 1.5, 1.75, 2, 2.5];
+  var MANIFEST_URL = "sample-pages/manifest.json";
+  var PAGES_DIR = "sample-pages/";
+  /* Page-zoom factors for the magnifier buttons: a pure CSS-transform layer
+     over the current spread — the 2600px source covers every step, nothing
+     re-renders. 0.5x steps, 2.5x cap. */
+  var ZOOMS = [1, 1.5, 2, 2.5];
   /* UI text-size steps for the A− / A+ buttons, % of the reader's root font
-     size. They grow the interface only — never the newspaper page bitmaps. */
+     size. They grow the interface only — never the newspaper pages. */
   var TEXT_SIZES = [80, 90, 100, 115, 130, 145];
   var TEXT_SIZE_KEY = "inkrun-ui-text-size";
-  var THUMB_W = 256; /* thumbnail bitmap width, px (trucks render 2x wide) */
-  /* A PDF page at least this much wider than the median page is a double
-     truck: one physical sheet fusing two print pages. Detected from page
-     dimensions (viewport metadata), never hardcoded. */
-  var TRUCK_FACTOR = 1.6;
+  var RAIL_KEY = "inkrun-rail-open";
 
   var shellEl = document.getElementById("viewer-shell");
   var statusEl = document.getElementById("viewer-status");
@@ -490,8 +527,10 @@ a:hover { color: var(--cyan-dark); }
   var btnZoomIn = document.getElementById("btn-zoom-in");
   var btnThumbs = document.getElementById("btn-thumbs");
   var btnThumbsClose = document.getElementById("btn-thumbs-close");
+  var btnRailMin = document.getElementById("btn-rail-min");
   var btnFull = document.getElementById("btn-full");
   var rail = document.getElementById("thumb-rail");
+  var railList = document.getElementById("thumb-rail-list");
   var sheet = document.getElementById("thumb-sheet");
   var scrim = document.getElementById("thumb-scrim");
   var thumbGrid = document.getElementById("thumb-grid");
@@ -501,37 +540,32 @@ a:hover { color: var(--cyan-dark); }
     statusEl.hidden = false;
   }
 
-  if (!window.pdfjsLib || !window.St || !window.St.PageFlip) {
+  if (!window.St || !window.St.PageFlip) {
     fail("The viewer could not load here.");
     return;
   }
 
-  /* Opened straight from the disk (file://), most browsers refuse to let
-     JavaScript read local files — the viewer cannot reach the PDF. It works
-     over http (GitHub Pages) or any local web server. Say so plainly. */
+  /* Opened straight from the disk (file://), browsers refuse to let
+     JavaScript fetch the manifest or the images. It works over http
+     (GitHub Pages) or any local web server. Say so plainly. */
   if (window.location.protocol === "file:") {
-    fail("Browsers will not let the viewer read the PDF from an opened file. Serve this folder with a local web server (for example: python3 -m http.server) or view it on inkrun.ca — or");
+    fail("Browsers will not let the viewer read its pages from an opened file. Serve this folder with a local web server (for example: python3 -m http.server) or view it on inkrun.ca — or");
     return;
   }
 
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  var pdfDoc = null;
-  var numPages = 0;      /* PDF pages in the file */
-  /* Virtual pages are what StPageFlip flips: {pdf, half, folio}.
-     A double truck becomes two virtual pages (left/right halves), so the
-     truck renders alone across the full spread and counts as two print
-     pages. If a truck's left half would land on an even virtual index it
-     would pair with the previous page — a blank filler virtual page is
-     inserted first so the halves always face each other. */
+  var manifest = null;
+  /* Virtual pages are what StPageFlip flips: {pdf, half, folio}, all from
+     the manifest — no runtime inference. A double truck becomes two
+     virtual pages (left/right halves of the wide sheet), so it renders
+     alone across the full spread and counts as two print pages. If a
+     truck's left half would land on an even virtual index it would pair
+     with the previous page — a blank filler is inserted so the halves
+     always face each other. */
   var vpages = [];
-  var pdfToVirtual = []; /* pdf index -> virtual index of its (first) page */
-  var truckPdf = [];     /* pdf index -> true if double truck */
-  var totalPrint = 0;    /* print pages, cover to back (trucks count double) */
-  var pageRatio = 1.35;  /* replaced by the real median page ratio on load */
+  var totalPrint = 0;
+  var pageRatio = 1.35; /* replaced by the manifest's median page ratio */
   var pageFlip = null;
   var current = 0;       /* virtual page index */
   var zoomIdx = 0;
@@ -540,34 +574,19 @@ a:hover { color: var(--cyan-dark); }
   var panY = 0;
   var pageCssW = 0;
   var pageCssH = 0;
-  var renderVersion = 0; /* bumped on every rebuild; stale tasks check it */
-  var renderedAt = {};   /* virtual index -> renderVersion actually painted */
-  var queuedAt = {};     /* virtual index -> renderVersion already queued */
-  var pageCanvases = []; /* stable refs — StPageFlip moves page elements into
-                            its own wrappers, so canvases are NEVER looked up
+  var pageImages = [];   /* stable refs — StPageFlip moves page elements into
+                            its own wrappers, so images are NEVER looked up
                             by DOM position after loadFromHTML */
   var thumbButtons = []; /* one per PDF page — blank fillers get no thumb */
-  var thumbCanvases = [];
   var thumbPdf = [];     /* thumb index -> pdf index */
-  var thumbsStarted = false;
   var thumbsOpen = false;
   var prevSingle = null;
 
-  /* One serial queue for every render (pages and thumbnails alike).
-     PDF.js dislikes concurrent renders of the same page, and a single
-     chain keeps order: visible spread first, prefetch behind it. */
-  var queue = Promise.resolve();
-  function enqueue(task) {
-    queue = queue.then(task).catch(function (error) {
-      if (window.console && console.error) { console.error("Inkrun viewer:", error); }
-      if (!statusEl.hidden) { fail("The edition could not load here."); }
-    });
-    return queue;
-  }
-
   function isSingle() { return window.innerWidth < 768; }
 
-  function bookWidth() { return isSingle() ? pageCssW : pageCssW * 2; }
+  function zoom() { return ZOOMS[zoomIdx]; }
+
+  function bookWidth() { return (isSingle() ? pageCssW : pageCssW * 2) * zoom(); }
 
   function lastSpreadStart() {
     var m = vpages.length;
@@ -586,7 +605,7 @@ a:hover { color: var(--cyan-dark); }
     }
   }
 
-  /* --- pan (active only while zoomed): transform on #book-pan, clamped
+  /* --- zoom/pan: one transform on #book-pan (translate + scale), clamped
      so a page edge never pans past the frame edge --- */
   function panBounds() {
     var fw = frameEl.clientWidth;
@@ -596,7 +615,7 @@ a:hover { color: var(--cyan-dark); }
        measuring the frame height here would catch it mid-layout */
     if (zoomIdx === 0) { return { x: x, y: [0, 0] }; }
     var fh = frameEl.clientHeight;
-    var bh = pageCssH;
+    var bh = pageCssH * zoom();
     var y = bh <= fh ? [(fh - bh) / 2, (fh - bh) / 2] : [fh - bh, 0];
     return { x: x, y: y };
   }
@@ -605,7 +624,8 @@ a:hover { color: var(--cyan-dark); }
     var b = panBounds();
     panX = Math.min(b.x[1], Math.max(b.x[0], panX));
     panY = Math.min(b.y[1], Math.max(b.y[0], panY));
-    panEl.style.transform = "translate(" + Math.round(panX) + "px," + Math.round(panY) + "px)";
+    panEl.style.transform = "translate(" + Math.round(panX) + "px," + Math.round(panY) + "px)" +
+      (zoomIdx > 0 ? " scale(" + zoom() + ")" : "");
   }
 
   function centerPan() {
@@ -615,12 +635,12 @@ a:hover { color: var(--cyan-dark); }
     applyPan();
   }
 
-  /* While zoomed the frame gets a fixed height so the oversized book pans
+  /* While zoomed the frame gets a fixed height so the scaled book pans
      inside it instead of stretching the page. */
   function fitFrame() {
     if (zoomIdx > 0) {
       frameEl.classList.add("zoomed");
-      frameEl.style.height = Math.min(pageCssH, Math.round(window.innerHeight * 0.85)) + "px";
+      frameEl.style.height = Math.min(pageCssH * zoom(), Math.round(window.innerHeight * 0.85)) + "px";
       frameEl.style.touchAction = "none";
     } else {
       frameEl.classList.remove("zoomed", "panning");
@@ -678,81 +698,22 @@ a:hover { color: var(--cyan-dark); }
     applyCoverOffset();
   }
 
-  function renderPageTask(index) {
-    return function () {
-      var canvas = pageCanvases[index];
-      var vp = vpages[index];
-      if (!canvas || !vp || queuedAt[index] !== renderVersion || renderedAt[index] === renderVersion) {
-        return Promise.resolve();
-      }
-      if (vp.pdf < 0) { /* blank filler — nothing to paint */
-        renderedAt[index] = renderVersion;
-        return Promise.resolve();
-      }
-      return pdfDoc.getPage(vp.pdf + 1).then(function (page) {
-        if (queuedAt[index] !== renderVersion) { return; } /* stale rebuild */
-        var dpr = Math.min(window.devicePixelRatio || 1, 2);
-        var base = page.getViewport({ scale: 1 });
-        if (vp.half === null) {
-          var viewport = page.getViewport({ scale: (pageCssW / base.width) * dpr });
-          canvas.width = Math.round(viewport.width);
-          canvas.height = Math.round(viewport.height);
-          return page.render({ canvasContext: canvas.getContext("2d"), viewport: viewport })
-            .promise.then(function () {
-              if (queuedAt[index] === renderVersion) {
-                renderedAt[index] = renderVersion;
-                if (index === 0) { statusEl.hidden = true; }
-              }
-            });
-        }
-        /* truck half: render the full sheet offscreen at spread width,
-           then blit this half into the page slot — the two halves meet
-           at the gutter like the printed sheet */
-        var full = page.getViewport({ scale: (pageCssW * 2 / base.width) * dpr });
-        var off = document.createElement("canvas");
-        off.width = Math.round(full.width);
-        off.height = Math.round(full.height);
-        return page.render({ canvasContext: off.getContext("2d"), viewport: full })
-          .promise.then(function () {
-            if (queuedAt[index] !== renderVersion) { return; }
-            var halfW = Math.round(off.width / 2);
-            canvas.width = halfW;
-            canvas.height = off.height;
-            var sx = vp.half === 0 ? 0 : off.width - halfW;
-            canvas.getContext("2d").drawImage(off, sx, 0, halfW, off.height, 0, 0, halfW, off.height);
-            renderedAt[index] = renderVersion;
-          });
-      });
-    };
-  }
-
-  function queuePage(index) {
-    if (index < 0 || index >= vpages.length) { return; }
-    if (renderedAt[index] === renderVersion || queuedAt[index] === renderVersion) { return; }
-    queuedAt[index] = renderVersion;
-    enqueue(renderPageTask(index));
-  }
-
-  /* Visible spread first, then a two-spread prefetch, then the previous
-     spread (for the back-flip). Rendering is lazy: nothing else is painted. */
-  function queueSpread(center) {
-    if (isSingle()) {
-      queuePage(center);
-      queuePage(center + 1); queuePage(center + 2); queuePage(center + 3);
-      queuePage(center - 1);
-    } else {
-      queuePage(center); queuePage(center + 1);
-      queuePage(center + 2); queuePage(center + 3);
-      queuePage(center + 4); queuePage(center + 5);
-      queuePage(center - 1); queuePage(center - 2);
+  /* Lazy full pages: the current spread, a two-spread prefetch, and the
+     previous spread (for the back-flip). Everything else stays unloaded. */
+  function loadSpread(center) {
+    var from = Math.max(0, center - 2);
+    var to = Math.min(vpages.length - 1, isSingle() ? center + 3 : center + 5);
+    /* current spread first, then outward */
+    var order = [center, center + 1, center + 2, center + 3, center + 4, center + 5, center - 1, center - 2];
+    for (var k = 0; k < order.length; k++) {
+      var i = order[k];
+      if (i < from || i > to) { continue; }
+      var img = pageImages[i];
+      if (img && !img.src && img.dataset.src) { img.src = img.dataset.src; }
     }
-    return queue;
   }
 
   function buildBook(targetPage) {
-    renderVersion += 1;
-    renderedAt = {};
-    queuedAt = {};
     if (pageFlip) {
       try { pageFlip.destroy(); } catch (e) { /* older builds lack destroy */ }
       pageFlip = null;
@@ -761,7 +722,7 @@ a:hover { color: var(--cyan-dark); }
       if (!bookEl.isConnected) { panEl.appendChild(bookEl); }
     }
     bookEl.innerHTML = "";
-    pageCanvases = [];
+    pageImages = [];
 
     var single = isSingle();
     var frameW = frameEl.clientWidth - 34; /* padding + borders */
@@ -769,22 +730,26 @@ a:hover { color: var(--cyan-dark); }
     var h = Math.round(w * pageRatio);
     var maxH = Math.round(window.innerHeight * 0.85);
     if (h > maxH) { h = maxH; w = Math.round(h / pageRatio); }
-    var zoom = ZOOMS[zoomIdx];
-    pageCssW = Math.max(1, Math.round(w * zoom));
-    pageCssH = Math.max(1, Math.round(h * zoom));
+    pageCssW = Math.max(1, Math.round(w));
+    pageCssH = Math.max(1, Math.round(h));
 
     for (var i = 0; i < vpages.length; i++) {
       var vp = vpages[i];
       var pageEl = document.createElement("div");
-      pageEl.className = "page";
-      var canvas = document.createElement("canvas");
-      canvas.setAttribute("role", "img");
-      canvas.setAttribute("aria-label", vp.folio
-        ? "Page " + vp.folio + " of " + totalPrint
-        : "Blank page");
-      pageEl.appendChild(canvas);
+      pageEl.className = vp.half === null ? "page" : (vp.half === 0 ? "page half" : "page half right");
+      var img = null;
+      if (vp.pdf >= 0) {
+        img = document.createElement("img");
+        img.dataset.src = PAGES_DIR + manifest.pages[vp.pdf].page;
+        img.alt = "Page " + vp.folio + " of " + totalPrint;
+        img.draggable = false;
+      } else {
+        pageEl.setAttribute("role", "img");
+        pageEl.setAttribute("aria-label", "Blank page");
+      }
+      if (img) { pageEl.appendChild(img); }
       bookEl.appendChild(pageEl);
-      pageCanvases.push(canvas);
+      pageImages.push(img);
     }
 
     pageFlip = new St.PageFlip(bookEl, {
@@ -813,11 +778,11 @@ a:hover { color: var(--cyan-dark); }
       /* flipping while zoomed always returns to fit */
       if (zoomIdx > 0 && !selfFlip) {
         zoomIdx = 0;
-        buildBook(current);
-        return;
+        fitFrame();
+        centerPan();
       }
       syncChrome();
-      queueSpread(current);
+      loadSpread(current);
     });
 
     current = Math.min(targetPage || 0, vpages.length - 1);
@@ -827,24 +792,25 @@ a:hover { color: var(--cyan-dark); }
     fitFrame();
     centerPan();
     syncChrome();
-    return queueSpread(current);
+    loadSpread(current);
   }
 
-  /* --- zoom: re-render at the new scale around a focal point (frame
-     coordinates); without one, zoom to the centre of the frame --- */
+  /* --- zoom: one transform step around a focal point (frame coordinates);
+     without one, zoom to the centre of the frame --- */
   function zoomTo(next, fx, fy) {
     next = Math.max(0, Math.min(ZOOMS.length - 1, next));
     if (next === zoomIdx) { return; }
-    var ratio = ZOOMS[next] / ZOOMS[zoomIdx];
+    var oldZ = zoom();
     if (fx === undefined) { fx = frameEl.clientWidth / 2; fy = frameEl.clientHeight / 2; }
     /* book coordinates under the focal point, so it can stay put */
-    var bx = fx - panX;
-    var by = fy - panY;
+    var bx = (fx - panX) / oldZ;
+    var by = (fy - panY) / oldZ;
     zoomIdx = next;
-    buildBook(current);
-    panX = fx - bx * ratio;
-    panY = fy - by * ratio;
+    fitFrame();
+    panX = fx - bx * zoom();
+    panY = fy - by * zoom();
     applyPan();
+    syncChrome();
   }
 
   function dblTapZoom(fx, fy) {
@@ -931,81 +897,77 @@ a:hover { color: var(--cyan-dark); }
   frameEl.addEventListener("pointerup", endDrag);
   frameEl.addEventListener("pointercancel", endDrag);
 
-  /* --- thumbnails: one set of buttons, rendered lazily on first open.
+  /* --- thumbnails: one set of buttons, images lazy-loaded on first open.
      One thumb per PDF page; a truck gets one wide thumb labelled with its
      folio range; blank fillers get none. --- */
-  function renderThumbTask(index) {
-    return function () {
-      var canvas = thumbCanvases[index];
-      /* fresh canvases default to width 300, so width alone can't mark a
-         rendered thumb — use an explicit flag instead */
-      if (!canvas || canvas.dataset.rendered) { return Promise.resolve(); }
-      var pdfIndex = thumbPdf[index];
-      return pdfDoc.getPage(pdfIndex + 1).then(function (page) {
-        var base = page.getViewport({ scale: 1 });
-        var w = truckPdf[pdfIndex] ? THUMB_W * 2 : THUMB_W;
-        var viewport = page.getViewport({ scale: w / base.width });
-        canvas.width = Math.round(viewport.width);
-        canvas.height = Math.round(viewport.height);
-        return page.render({ canvasContext: canvas.getContext("2d"), viewport: viewport })
-          .promise.then(function () { canvas.dataset.rendered = "true"; });
-      });
-    };
-  }
-
   function buildThumbs() {
-    for (var i = 0; i < numPages; i++) {
+    for (var i = 0; i < manifest.pages.length; i++) {
       (function (pdfIndex) {
-        var first = vpages[pdfToVirtual[pdfIndex]];
-        var label = truckPdf[pdfIndex]
-          ? first.folio + "\u2013" + vpages[pdfToVirtual[pdfIndex] + 1].folio
-          : first.folio;
+        var mp = manifest.pages[pdfIndex];
+        var label = mp.truck ? mp.print[0] + "\u2013" + mp.print[1] : String(mp.print[0]);
         var btn = document.createElement("button");
         btn.type = "button";
-        btn.className = truckPdf[pdfIndex] ? "thumb thumb-truck" : "thumb";
+        btn.className = mp.truck ? "thumb thumb-truck" : "thumb";
         btn.setAttribute("aria-label", "Go to page " + label);
-        var canvas = document.createElement("canvas");
-        canvas.setAttribute("aria-hidden", "true");
-        canvas.style.width = truckPdf[pdfIndex] ? "100%" : "7rem";
+        var img = document.createElement("img");
+        img.dataset.src = PAGES_DIR + mp.thumb;
+        img.alt = "";
+        img.draggable = false;
+        img.loading = "lazy";
+        img.style.width = mp.truck ? "100%" : "7rem";
         var num = document.createElement("span");
         num.className = "thumb-num";
         num.textContent = label;
-        btn.appendChild(canvas);
+        btn.appendChild(img);
         btn.appendChild(num);
         btn.addEventListener("click", function () {
-          closeThumbs();
+          if (isSingle()) { closeThumbs(); } /* the rail NEVER closes on desktop */
           if (!pageFlip) { return; }
-          /* navigate to the spread that contains this page */
-          var target = pdfToVirtual[pdfIndex];
+          /* jump to the spread that contains this page — instantly,
+             without the flip animation */
+          var target = 0;
+          for (var v = 0; v < vpages.length; v++) {
+            if (vpages[v].pdf === pdfIndex) { target = v; break; }
+          }
           if (!isSingle()) { target = target === 0 ? 0 : (target % 2 === 1 ? target : target - 1); }
-          if (target !== current) { pageFlip.flip(target); } /* the flip event syncs + queues */
+          if (zoomIdx > 0) { zoomIdx = 0; fitFrame(); centerPan(); }
+          if (target !== current) {
+            current = target;
+            pageFlip.turnToPage(target);
+            loadSpread(current);
+          }
+          syncChrome();
         });
         thumbButtons.push(btn);
-        thumbCanvases.push(canvas);
         thumbPdf.push(pdfIndex);
       })(i);
     }
   }
 
-  function startThumbRenders() {
-    if (thumbsStarted) { return; }
-    thumbsStarted = true;
-    for (var i = 0; i < thumbCanvases.length; i++) { enqueue(renderThumbTask(i)); }
+  function startThumbLoads() {
+    for (var i = 0; i < thumbButtons.length; i++) {
+      var img = thumbButtons[i].querySelector("img");
+      if (img && !img.src) { img.src = img.dataset.src; }
+    }
   }
 
   function openThumbs() {
     var i;
     thumbsOpen = true;
     btnThumbs.setAttribute("aria-expanded", "true");
-    startThumbRenders();
+    startThumbLoads();
     if (isSingle()) {
       for (i = 0; i < thumbButtons.length; i++) { thumbGrid.appendChild(thumbButtons[i]); }
       scrim.hidden = false;
       sheet.hidden = false;
     } else {
-      for (i = 0; i < thumbButtons.length; i++) { rail.appendChild(thumbButtons[i]); }
-      rail.classList.add("open");
-      buildBook(current); /* refit the book beside the rail */
+      for (i = 0; i < thumbButtons.length; i++) { railList.appendChild(thumbButtons[i]); }
+      if (!rail.classList.contains("open")) {
+        rail.classList.add("open");
+        buildBook(current); /* refit the book beside the rail */
+      }
+      saveRail(true);
+      syncChrome();
     }
   }
 
@@ -1016,8 +978,13 @@ a:hover { color: var(--cyan-dark); }
     if (!sheet.hidden) { sheet.hidden = true; scrim.hidden = true; }
     if (rail.classList.contains("open")) {
       rail.classList.remove("open");
+      saveRail(false);
       buildBook(current);
     }
+  }
+
+  function saveRail(open) {
+    try { window.localStorage.setItem(RAIL_KEY, open ? "1" : "0"); } catch (e) { /* private mode */ }
   }
 
   /* --- controls --- */
@@ -1026,8 +993,8 @@ a:hover { color: var(--cyan-dark); }
   btnZoomIn.addEventListener("click", function () { zoomTo(zoomIdx + 1); });
   btnZoomOut.addEventListener("click", function () { zoomTo(zoomIdx - 1); });
 
-  /* A− / A+ grow the interface text only. The page bitmaps are px-sized
-     and deliberately NOT rebuilt, so the newspaper pages never change. */
+  /* A− / A+ grow the interface text only. The pages are images sized in px
+     and deliberately NOT rebuilt, so the newspaper never changes. */
   function applyTextSize() {
     document.documentElement.style.fontSize = TEXT_SIZES[textIdx] + "%";
     try { window.localStorage.setItem(TEXT_SIZE_KEY, String(textIdx)); } catch (e) { /* private mode */ }
@@ -1043,6 +1010,7 @@ a:hover { color: var(--cyan-dark); }
     if (thumbsOpen) { closeThumbs(); } else { openThumbs(); }
   });
   btnThumbsClose.addEventListener("click", closeThumbs);
+  btnRailMin.addEventListener("click", closeThumbs);
   scrim.addEventListener("click", closeThumbs);
 
   if (!document.fullscreenEnabled) { btnFull.hidden = true; }
@@ -1054,7 +1022,7 @@ a:hover { color: var(--cyan-dark); }
     var on = !!document.fullscreenElement;
     btnFull.textContent = on ? "Exit" : "Full screen";
     btnFull.setAttribute("aria-label", on ? "Exit full screen" : "Enter full screen");
-    if (pdfDoc) { buildBook(current); } /* refit to the new frame size */
+    if (manifest) { buildBook(current); } /* refit to the new frame size */
   });
 
   document.addEventListener("keydown", function (event) {
@@ -1066,7 +1034,7 @@ a:hover { color: var(--cyan-dark); }
 
   var resizeTimer = null;
   window.addEventListener("resize", function () {
-    if (!pdfDoc) { return; }
+    if (!manifest) { return; }
     window.clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(function () {
       var single = isSingle();
@@ -1081,50 +1049,29 @@ a:hover { color: var(--cyan-dark); }
     return sorted[Math.floor(sorted.length / 2)];
   }
 
-  /* Read every page's dimensions (viewport metadata — no rendering) and
-     lay out the virtual pages: trucks split into facing halves, with a
-     blank filler when one is needed to keep the halves facing. */
-  function planPages(doc) {
-    var widths = [];
+  /* Lay out the virtual pages straight from the manifest: trucks split
+     into facing halves, with a blank filler when one is needed to keep
+     the halves facing. */
+  function planPages(m) {
     var ratios = [];
-    var got = [];
-    for (var i = 1; i <= doc.numPages; i++) { got.push(doc.getPage(i)); }
-    return Promise.all(got).then(function (pages) {
-      pages.forEach(function (page) {
-        var base = page.getViewport({ scale: 1 });
-        widths.push(base.width);
-        ratios.push(base.height / base.width);
-      });
-      var medianW = median(widths);
-      var normalRatios = [];
-      pages.forEach(function (page, i) {
-        truckPdf[i] = widths[i] > medianW * TRUCK_FACTOR;
-        if (!truckPdf[i]) { normalRatios.push(ratios[i]); }
-      });
-      pageRatio = median(normalRatios.length ? normalRatios : ratios);
-
-      var folio = 1;
-      vpages = [];
-      pdfToVirtual = [];
-      for (var p = 0; p < pages.length; p++) {
-        pdfToVirtual[p] = vpages.length;
-        if (truckPdf[p]) {
-          /* the left half must start on an odd virtual index so the two
-             halves face each other in one spread (cover sits alone at 0) */
-          if (vpages.length > 0 && vpages.length % 2 === 0) {
-            vpages.push({ pdf: -1, half: null, folio: null });
-            pdfToVirtual[p] = vpages.length;
-          }
-          vpages.push({ pdf: p, half: 0, folio: folio });
-          vpages.push({ pdf: p, half: 1, folio: folio + 1 });
-          folio += 2;
-        } else {
-          vpages.push({ pdf: p, half: null, folio: folio });
-          folio += 1;
+    m.pages.forEach(function (p) { if (!p.truck) { ratios.push(p.height / p.width); } });
+    pageRatio = median(ratios);
+    vpages = [];
+    for (var i = 0; i < m.pages.length; i++) {
+      var mp = m.pages[i];
+      if (mp.truck) {
+        /* the left half must start on an odd virtual index so the two
+           halves face each other in one spread (cover sits alone at 0) */
+        if (vpages.length > 0 && vpages.length % 2 === 0) {
+          vpages.push({ pdf: -1, half: null, folio: null });
         }
+        vpages.push({ pdf: i, half: 0, folio: mp.print[0] });
+        vpages.push({ pdf: i, half: 1, folio: mp.print[1] });
+      } else {
+        vpages.push({ pdf: i, half: null, folio: mp.print[0] });
       }
-      totalPrint = folio - 1;
-    });
+    }
+    totalPrint = m.printCount;
   }
 
   try {
@@ -1135,16 +1082,25 @@ a:hover { color: var(--cyan-dark); }
     }
   } catch (e) { /* private mode */ }
 
-  pdfjsLib.getDocument({ url: PDF_URL, enableScripting: false }).promise
-    .then(function (doc) {
-      pdfDoc = doc;
-      numPages = doc.numPages;
-      return planPages(doc);
+  fetch(MANIFEST_URL)
+    .then(function (response) {
+      if (!response.ok) { throw new Error("manifest " + response.status); }
+      return response.json();
     })
-    .then(function () {
+    .then(function (m) {
+      manifest = m;
+      planPages(m);
       buildThumbs();
       prevSingle = isSingle();
+      /* the rail is OPEN on launch at desktop widths unless the reader
+         minimized it last time */
+      var railSaved = null;
+      try { railSaved = window.localStorage.getItem(RAIL_KEY); } catch (e) { /* private mode */ }
+      if (!isSingle() && (railSaved === "1" || (railSaved === null && window.innerWidth >= 1024))) {
+        openThumbs();
+      }
       buildBook(0);
+      statusEl.hidden = true;
     })
     .catch(function (error) {
       if (window.console && console.error) { console.error("Inkrun viewer:", error); }
