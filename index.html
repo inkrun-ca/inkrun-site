@@ -450,29 +450,9 @@ a:hover { color: var(--cyan-dark); }
     </svg>
   </div>
 
-  <!-- ================= SECTION 2: THE PROBLEM ================= -->
-  <section id="problem" class="wrap">
-    <h2>The renewal invoice</h2>
-    <!-- COPY: problem 1, the renewal bill -->
-    <p>The renewal invoice lands. Another <strong class="fee">$2,000 or more</strong>, for software that animates your PDF and little else.</p>
-    <!-- COPY: problem 2, the checkout fee, the entry fee, zero equity. Facts, stated calmly -->
-    <p>The national newsstand looks free until your reader pays you. An <strong class="fee">upkeep fee</strong> comes out of her pocket at checkout. She assumes you set it. You did not. <strong class="fee">Entry fees</strong> come up front. No equity in the business her readers fund.</p>
-  </section>
-
-  <div class="rule" aria-hidden="true">
-    <!-- woodcut motif: folded newspaper, decorative -->
-    <svg viewBox="0 0 40 34" width="38" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-      <path d="M13 5.5h20v18.5H13"/>
-      <path d="M6 9.5h22v19.5H6z"/>
-      <path d="M9.5 13.2h9"/>
-      <path d="M9.5 17.4h7.5M9.5 21.2h7.5M9.5 25h5"/>
-      <path d="M20.5 17.4h4M20.5 21.2h4"/>
-    </svg>
-  </div>
-
-  <!-- ================= SECTION 3: THE DIFFERENCE ================= -->
+  <!-- ================= SECTION 2: THE DIFFERENCE ================= -->
   <section id="difference" class="wrap">
-    <h2>What we are building instead</h2>
+    <h2>What we are building</h2>
     <div class="values">
       <!-- COPY: value 1, PDF-first -->
       <div class="value">
@@ -505,7 +485,7 @@ a:hover { color: var(--cyan-dark); }
     </svg>
   </div>
 
-  <!-- ================= SECTION 4: PRICING ================= -->
+  <!-- ================= SECTION 3: PRICING ================= -->
   <section id="pricing" class="wrap">
     <h2>One flat price</h2>
     <!-- COPY: price display. Every figure is single-sourced inside PRICE comments
@@ -516,12 +496,13 @@ a:hover { color: var(--cyan-dark); }
     <!-- FOUNDING OFFER -->
     <p>Founding publishers: the <mark>first 20</mark> on the waitlist get half price for their first year: $24 CAD a month instead of $48.</p>
     <!-- /FOUNDING OFFER -->
-    <!-- COPY: flat means flat -->
-    <p>Flat means flat. No cut of your subscriptions. Cancel anytime.</p>
+    <!-- COPY: flat means flat. "No cut" means Inkrun takes nothing on your sales;
+         Stripe's own card processing fees still apply (see #payments) -->
+    <p>Flat means flat. Inkrun takes no cut of your subscriptions. Cancel anytime.</p>
     <p><a class="btn" href="#waitlist">Join the waitlist</a></p>
   </section>
 
-  <!-- ================= SECTION 5: COMPARISON ================= -->
+  <!-- ================= SECTION 4: COMPARISON ================= -->
   <section id="compare" class="wrap">
     <h2>How Inkrun compares</h2>
     <!-- facts only, no adjectives. The table carries the contrast now.
@@ -546,7 +527,7 @@ a:hover { color: var(--cyan-dark); }
           <th scope="row">Fee taken at reader checkout</th>
           <td data-label="Fee taken at reader checkout">Varies</td>
           <td data-label="Fee taken at reader checkout">Yes</td>
-          <td data-label="Fee taken at reader checkout">Never</td>
+          <td data-label="Fee taken at reader checkout">None from Inkrun</td>
         </tr>
         <tr>
           <th scope="row">You keep your subscriber list</th>
@@ -584,6 +565,27 @@ a:hover { color: var(--cyan-dark); }
       <path d="M9.5 13.2h9"/>
       <path d="M9.5 17.4h7.5M9.5 21.2h7.5M9.5 25h5"/>
       <path d="M20.5 17.4h4M20.5 21.2h4"/>
+    </svg>
+  </div>
+
+  <!-- ================= SECTION 5: HOW PAYMENTS WORK ================= -->
+  <section id="payments" class="wrap">
+    <h2>How payments work</h2>
+    <!-- COPY: Stripe Connect, how it works. Plain version of PRD.md section 5 -->
+    <p>You open your own Stripe account and connect it to Inkrun. Your readers pay you, not us. The money goes into your Stripe account and pays out to your bank. Inkrun bills you the flat monthly rate separately.</p>
+    <!-- COPY: the benefits -->
+    <p>Because the account is yours, you are the merchant of record. Your subscriber list, your payment data, and your reader relationships sit with you. If you ever leave Inkrun, your Stripe account and everything in it stays with you.</p>
+    <!-- COPY: the drawbacks, stated plainly -->
+    <p>Two things to know. Stripe asks you to verify your identity when you open the account, and an incorporated paper also needs its corporation number and director details. And Stripe charges its standard card processing fees on each payment. Inkrun's monthly rate is separate, and it is the only thing Inkrun ever charges you.</p>
+  </section>
+
+  <div class="rule" aria-hidden="true">
+    <!-- woodcut motif: ink roller, decorative -->
+    <svg viewBox="0 0 48 34" width="46" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <rect x="4" y="13.5" width="27.5" height="11" rx="5.5"/>
+      <path d="M10 17.2h5.5M9.5 21h8.5"/>
+      <path d="M31.5 19 40.3 11.6"/>
+      <path d="M37.9 8.3 43.3 14.4"/>
     </svg>
   </div>
 
