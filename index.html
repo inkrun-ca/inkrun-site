@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- SEO -->
-<title>Inkrun — Flat-rate web editions for Canadian community newspapers</title>
+<title>Inkrun: flat-rate web editions for Canadian community newspapers</title>
 <meta name="description" content="Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate in CAD. No cut of your subscriptions. Your readers stay yours.">
 <link rel="canonical" href="https://inkrun.ca/">
 <meta name="theme-color" content="#FDFDF8">
@@ -15,7 +15,7 @@
 <meta property="og:site_name" content="Inkrun">
 <meta property="og:locale" content="en_CA">
 <meta property="og:url" content="https://inkrun.ca/">
-<meta property="og:title" content="Inkrun — Flat-rate web editions for Canadian community newspapers">
+<meta property="og:title" content="Inkrun: flat-rate web editions for Canadian community newspapers">
 <meta property="og:description" content="Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate in CAD. No cut of your subscriptions. Your readers stay yours.">
 
 <!-- Favicon: folded-newspaper woodcut motif in cyan (see inkrun-md/DESIGN.md > Craft vocabulary) -->
@@ -23,18 +23,18 @@
 
 <style>
 /* ============================================================
-   INKRUN — "Modern CMYK / Print Shop"
+   INKRUN: "Modern CMYK / Print Shop"
    These tokens are the source of truth. Keep them in sync
    with inkrun-md/DESIGN.md.
    ============================================================ */
 :root {
-  --ink: #1A1A1A;        /* black — body text, headlines, structure. 17:1 on paper */
-  --paper: #FDFDF8;      /* paper white — page background */
-  --cyan: #0077A8;       /* INTERACTIVE ONLY — links, CTA, focus. 4.9:1 on paper */
+  --ink: #1A1A1A;        /* black: body text, headlines, structure. 17:1 on paper */
+  --paper: #FDFDF8;      /* paper white: page background */
+  --cyan: #0077A8;       /* INTERACTIVE ONLY: links, CTA, focus. 4.9:1 on paper */
   --cyan-dark: #00597D;  /* CTA hover/active. White text on it: 7.7:1 */
-  --magenta: #D6255B;    /* SPARING — villain's fees, h2 rule, form error. 4.8:1 on paper */
-  --yellow: #F2B705;     /* highlight BEHIND ink words only — never text */
-  --line: #D0D0CC;       /* hairline rules (~ink at 20% on paper) — decoration only */
+  --magenta: #D6255B;    /* SPARING: villain's fees, h2 rule, form error. 4.8:1 on paper */
+  --yellow: #F2B705;     /* highlight BEHIND ink words only, never text */
+  --line: #D0D0CC;       /* hairline rules (~ink at 20% on paper), decoration only */
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -106,7 +106,7 @@ body {
 
 /* --- registration strip: printer's color-control marks, decorative.
      Squares are sized in px to match the fixed 32px logo mark, and each
-     is offset 1–3px in a varying direction — deliberately misregistered,
+     is offset 1-3px in a varying direction, deliberately misregistered,
      fresh off the press (see inkrun-md/DESIGN.md > Craft vocabulary). --- */
 .regmarks {
   display: flex;
@@ -137,7 +137,7 @@ h2 {
   line-height: 1.2;
   margin: 0 0 1.5rem;
 }
-/* the magenta rule line — sparing emphasis, consistent across sections */
+/* the magenta rule line: sparing emphasis, consistent across sections */
 h2::after {
   content: "";
   display: block;
@@ -157,7 +157,7 @@ section p:last-child { margin-bottom: 0; }
   max-width: 36em;
 }
 
-/* yellow marker highlight — behind ink words only, never yellow text */
+/* yellow marker highlight: behind ink words only, never yellow text */
 mark {
   background: rgba(242, 183, 5, 0.45); /* --yellow at 45% over paper */
   color: inherit;
@@ -167,7 +167,7 @@ mark {
   box-decoration-break: clone;
 }
 
-/* the villain's fee figures — magenta, sparing */
+/* the villain's fee figures: magenta, sparing */
 .fee { color: var(--magenta); }
 
 /* --- links & focus (cyan = interactive only) --- */
@@ -243,13 +243,13 @@ a:hover { color: var(--cyan-dark); }
 }
 .compare th[scope="row"] { width: 24%; font-weight: 700; }
 .compare th:last-child, .compare td:last-child { padding-right: 0; }
-/* documented exception: cyan on the Inkrun column header only — a label,
+/* documented exception: cyan on the Inkrun column header only, a label,
    not body text or decoration (see inkrun-md/DECISIONS.md, 2026-07-20) */
 .compare .col-inkrun { color: var(--cyan); }
 .compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: 1px solid var(--line); }
 
 /* below 768px: restack into one labeled block per competitor, with the row
-   labels repeated inline. Pure CSS — display:contents flattens the table
+   labels repeated inline. Pure CSS: display:contents flattens the table
    parts and every visible cell is pinned to an explicit grid-row. */
 @media (max-width: 47.99rem) {
   .compare {
@@ -409,7 +409,7 @@ a:hover { color: var(--cyan-dark); }
 <!-- ================= MASTHEAD ================= -->
 <header class="masthead">
   <div class="wrap masthead-inner">
-    <!-- woodcut motif: ink roller (brayer) — decorative -->
+    <!-- woodcut motif: ink roller (brayer), decorative -->
     <svg viewBox="0 0 48 34" width="46" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
       <rect x="4" y="13.5" width="27.5" height="11" rx="5.5"/>
       <path d="M10 17.2h5.5M9.5 21h8.5"/>
@@ -417,9 +417,9 @@ a:hover { color: var(--cyan-dark); }
       <path d="M37.9 8.3 43.3 14.4"/>
     </svg>
     <span class="wordmark">Inkrun</span>
-    <!-- registration strip: printer's color-control marks — pure CSS, decorative.
+    <!-- registration strip: printer's color-control marks. Pure CSS, decorative.
          Five squares (cyan, magenta, yellow, ink, 18% grey) at logo-mark height,
-         each offset 1–3px so the strip reads as misregistered -->
+         each offset 1-3px so the strip reads as misregistered -->
     <span class="regmarks" aria-hidden="true">
       <span class="regmark"></span><span class="regmark"></span><span class="regmark"></span><span class="regmark"></span><span class="regmark"></span>
     </span>
@@ -432,16 +432,16 @@ a:hover { color: var(--cyan-dark); }
   <!-- ================= SECTION 1: HERO ================= -->
   <section class="wrap hero">
     <!-- COPY: headline
-         ALTERNATE (swap manually): "Your paper, online. Your readers, yours." -->
-    <h1>Your paper. Your readers. Your paper online.</h1>
-    <!-- COPY: subheadline — carries the pricing, no figures (those live in #pricing only) -->
+         ALTERNATE (swap manually): "Your paper. Your readers. Your paper online." -->
+    <h1>Your paper, online. Your readers, yours.</h1>
+    <!-- COPY: subheadline. Carries the pricing claim, no figures (those live in #pricing only) -->
     <p class="lede">Inkrun turns your print-ready PDF into a clean web edition for one flat monthly rate in CAD. <mark>No cut of your subscriptions.</mark></p>
     <!-- COPY: call to action (scrolls to the form) -->
     <p><a class="btn" href="#waitlist">Join the waitlist</a></p>
   </section>
 
   <div class="rule" aria-hidden="true">
-    <!-- woodcut motif: ink roller — decorative -->
+    <!-- woodcut motif: ink roller, decorative -->
     <svg viewBox="0 0 48 34" width="46" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
       <rect x="4" y="13.5" width="27.5" height="11" rx="5.5"/>
       <path d="M10 17.2h5.5M9.5 21h8.5"/>
@@ -453,14 +453,14 @@ a:hover { color: var(--cyan-dark); }
   <!-- ================= SECTION 2: THE PROBLEM ================= -->
   <section id="problem" class="wrap">
     <h2>The renewal invoice</h2>
-    <!-- COPY: problem 1 — the renewal bill -->
-    <p>The renewal invoice lands. Another <strong class="fee">$2,000 or more</strong> — for software that animates your PDF and little else.</p>
-    <!-- COPY: problem 2 — the checkout fee, the entry fee, zero equity. Facts, stated calmly -->
-    <p>The national newsstand looks free — until your reader pays you. An <strong class="fee">upkeep fee</strong> comes out of her pocket at checkout. She assumes you set it. You did not. <strong class="fee">Entry fees</strong> come up front. No equity in the business her readers fund.</p>
+    <!-- COPY: problem 1, the renewal bill -->
+    <p>The renewal invoice lands. Another <strong class="fee">$2,000 or more</strong>, for software that animates your PDF and little else.</p>
+    <!-- COPY: problem 2, the checkout fee, the entry fee, zero equity. Facts, stated calmly -->
+    <p>The national newsstand looks free until your reader pays you. An <strong class="fee">upkeep fee</strong> comes out of her pocket at checkout. She assumes you set it. You did not. <strong class="fee">Entry fees</strong> come up front. No equity in the business her readers fund.</p>
   </section>
 
   <div class="rule" aria-hidden="true">
-    <!-- woodcut motif: folded newspaper — decorative -->
+    <!-- woodcut motif: folded newspaper, decorative -->
     <svg viewBox="0 0 40 34" width="38" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
       <path d="M13 5.5h20v18.5H13"/>
       <path d="M6 9.5h22v19.5H6z"/>
@@ -474,17 +474,17 @@ a:hover { color: var(--cyan-dark); }
   <section id="difference" class="wrap">
     <h2>What we are building instead</h2>
     <div class="values">
-      <!-- COPY: value 1 — PDF-first -->
+      <!-- COPY: value 1, PDF-first -->
       <div class="value">
         <h3>PDF-first</h3>
         <p>Send the print-ready PDF that goes to your printer. Inkrun builds the web edition. No second workflow.</p>
       </div>
-      <!-- COPY: value 2 — senior-readable -->
+      <!-- COPY: value 2, senior-readable -->
       <div class="value">
         <h3>Readable at any age</h3>
         <p>Type set at 20 pixels or more. High contrast. Tap targets a thumb can hit.</p>
       </div>
-      <!-- COPY: value 3 — full ownership -->
+      <!-- COPY: value 3, full ownership -->
       <div class="value">
         <h3>You own it all</h3>
         <p>Your subscriber list, payment data, reader relationships. Export any time. A utility, never a landlord.</p>
@@ -493,7 +493,7 @@ a:hover { color: var(--cyan-dark); }
   </section>
 
   <div class="rule" aria-hidden="true">
-    <!-- woodcut motif: platen press — decorative -->
+    <!-- woodcut motif: platen press, decorative -->
     <svg viewBox="0 0 42 36" width="40" height="34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
       <path d="M5.5 31h31"/>
       <path d="M10 31V11.5M32 31V11.5"/>
@@ -508,13 +508,13 @@ a:hover { color: var(--cyan-dark); }
   <!-- ================= SECTION 4: PRICING ================= -->
   <section id="pricing" class="wrap">
     <h2>One flat price</h2>
-    <!-- COPY: price display — every figure is single-sourced inside PRICE comments
+    <!-- COPY: price display. Every figure is single-sourced inside PRICE comments
          for find-and-replace. Prose elsewhere says "one flat monthly rate". -->
     <p class="price-figure"><span class="price-cur"><!-- PRICE MONTHLY CAD -->$48 CAD<!-- /PRICE MONTHLY CAD --></span> <span class="price-per">per month</span></p>
-    <!-- COPY: annual option — 15% off, billed once -->
-    <p>Or <span class="price-cur"><!-- PRICE ANNUAL CAD -->$490 CAD<!-- /PRICE ANNUAL CAD --></span> per year, billed once — 15% off.</p>
+    <!-- COPY: annual option, 15% off, billed once -->
+    <p>Or <span class="price-cur"><!-- PRICE ANNUAL CAD -->$490 CAD<!-- /PRICE ANNUAL CAD --></span> per year, billed once, 15% off.</p>
     <!-- FOUNDING OFFER -->
-    <p>Founding publishers: the <mark>first 20</mark> on the waitlist get half price for their first year — $24 CAD a month instead of $48.</p>
+    <p>Founding publishers: the <mark>first 20</mark> on the waitlist get half price for their first year: $24 CAD a month instead of $48.</p>
     <!-- /FOUNDING OFFER -->
     <!-- COPY: flat means flat -->
     <p>Flat means flat. No cut of your subscriptions. Cancel anytime.</p>
@@ -524,7 +524,7 @@ a:hover { color: var(--cyan-dark); }
   <!-- ================= SECTION 5: COMPARISON ================= -->
   <section id="compare" class="wrap">
     <h2>How Inkrun compares</h2>
-    <!-- facts only, no adjectives — the table carries the contrast now.
+    <!-- facts only, no adjectives. The table carries the contrast now.
          Below 768px this restacks into one labeled block per competitor (CSS only) -->
     <table class="compare">
       <thead>
@@ -558,26 +558,26 @@ a:hover { color: var(--cyan-dark); }
           <th scope="row">You are the merchant of record</th>
           <td data-label="You are the merchant of record">No</td>
           <td data-label="You are the merchant of record">No</td>
-          <td data-label="You are the merchant of record">Yes — <a href="https://stripe.com/connect" target="_blank" rel="noopener">your own Stripe account</a></td>
+          <td data-label="You are the merchant of record">Yes, on <a href="https://stripe.com/connect" target="_blank" rel="noopener">your own Stripe account</a></td>
         </tr>
         <tr>
           <th scope="row">Ads in your edition</th>
-          <td data-label="Ads in your edition">—</td>
-          <td data-label="Ads in your edition">—</td>
+          <td data-label="Ads in your edition">n/a</td>
+          <td data-label="Ads in your edition">n/a</td>
           <td data-label="Ads in your edition">Inkrun hosts no ads</td>
         </tr>
         <tr>
           <th scope="row">Equity in the platform</th>
           <td data-label="Equity in the platform">None</td>
           <td data-label="Equity in the platform">None</td>
-          <td data-label="Equity in the platform">—</td>
+          <td data-label="Equity in the platform">n/a</td>
         </tr>
       </tbody>
     </table>
   </section>
 
   <div class="rule" aria-hidden="true">
-    <!-- woodcut motif: folded newspaper — decorative -->
+    <!-- woodcut motif: folded newspaper, decorative -->
     <svg viewBox="0 0 40 34" width="38" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
       <path d="M13 5.5h20v18.5H13"/>
       <path d="M6 9.5h22v19.5H6z"/>
@@ -590,13 +590,13 @@ a:hover { color: var(--cyan-dark); }
   <!-- ================= SECTION 6: SAMPLE EDITION ================= -->
   <section id="sample" class="wrap">
     <h2>See for yourself</h2>
-    <!-- COPY: demo lead-in — show, don't tell -->
+    <!-- COPY: demo lead-in. Show, don't tell -->
     <p>A real edition, in the viewer your readers would use.</p>
     <p><a class="btn" href="sample.html">Read the sample edition</a></p>
   </section>
 
   <div class="rule" aria-hidden="true">
-    <!-- woodcut motif: platen press — decorative -->
+    <!-- woodcut motif: platen press, decorative -->
     <svg viewBox="0 0 42 36" width="40" height="34" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
       <path d="M5.5 31h31"/>
       <path d="M10 31V11.5M32 31V11.5"/>
@@ -608,34 +608,17 @@ a:hover { color: var(--cyan-dark); }
     </svg>
   </div>
 
-  <!-- ================= SECTION 7: LEAVING IS EASY ================= -->
-  <section id="leaving" class="wrap">
-    <h2>Leaving is easy</h2>
-    <!-- COPY: kill the migration fear — exactly three sentences -->
-    <p>Leaving feels risky. It is not a project. Your back issues and your next edition are <mark>PDF uploads</mark> — most publishers are set up in an afternoon.</p>
-  </section>
-
-  <div class="rule" aria-hidden="true">
-    <!-- woodcut motif: ink roller — decorative -->
-    <svg viewBox="0 0 48 34" width="46" height="32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-      <rect x="4" y="13.5" width="27.5" height="11" rx="5.5"/>
-      <path d="M10 17.2h5.5M9.5 21h8.5"/>
-      <path d="M31.5 19 40.3 11.6"/>
-      <path d="M37.9 8.3 43.3 14.4"/>
-    </svg>
-  </div>
-
-  <!-- ================= SECTION 8: THE FORM ================= -->
+  <!-- ================= SECTION 7: THE FORM ================= -->
   <section id="waitlist" class="wrap">
     <h2>Join the waitlist</h2>
-    <!-- COPY: form intro — invites, doesn't push -->
+    <!-- COPY: form intro. Invites, doesn't push -->
     <p>We are opening Inkrun to a first group of Canadian publishers in the coming months. Leave your email and we will write when your spot is ready.</p>
     <!-- FOUNDING OFFER -->
-    <p>The first 20 founding publishers get half price for their first year. No card. No sales calls. Just your email.</p>
+    <p>The first 20 founding publishers get half price for their first year. All we ask for is your email. No card, no sales call.</p>
     <!-- /FOUNDING OFFER -->
 
-    <!-- TALLY EMBED — form ID is xXEpP5 (iframe src, direct link, fallback link).
-         NOTE: the 6–8 empathy questions live inside the Tally form builder,
+    <!-- TALLY EMBED: form ID is xXEpP5 (iframe src, direct link, fallback link).
+         NOTE: the form questions live inside the Tally form builder,
          not in this file. -->
     <div class="form-frame">
       <iframe id="tally-frame" src="https://tally.so/embed/xXEpP5?alignLeft=1&hideTitle=1&transparentBackground=1" width="100%" height="620" frameborder="0" marginheight="0" marginwidth="0" title="Inkrun waitlist signup form"></iframe>
@@ -668,9 +651,9 @@ a:hover { color: var(--cyan-dark); }
   <a href="mailto:hello@inkrun.ca">hello@inkrun.ca</a>
   <p class="contact-label">The person building this, directly:</p>
   <a href="mailto:peter@inkrun.ca">peter@inkrun.ca</a>
-  <!-- COPY: privacy note (CASL-conscious — keep verbatim) -->
+  <!-- COPY: privacy note (CASL-conscious, keep verbatim) -->
   <p class="fine">We email you about Inkrun. Nothing else. Unsubscribe anytime.</p>
-  <!-- copyright — year is set dynamically by the script below -->
+  <!-- copyright: year is set dynamically by the script below -->
   <p class="fine">© <span id="year">2026</span> Inkrun · inkrun.ca</p>
 </footer>
 
