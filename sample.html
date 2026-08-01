@@ -196,11 +196,25 @@ a:hover { color: var(--cyan-dark); }
   /* width of the desktop thumbnail rail when open */
   --thumb-rail-width: 15rem; /* ~240px */
 }
-.viewer-shell:fullscreen {
+.viewer-shell.fs-mode {
   background: var(--paper);
   overflow: auto;
   padding: 1rem;
 }
+/* pseudo-fullscreen (iOS fallback): Safari and Chrome on iOS expose no
+   Fullscreen API for arbitrary elements, so the shell goes fixed over the
+   viewport with the page scroll locked. z-index 10: above the page, below
+   the thumbnail scrim (19) and sheet (20) */
+.viewer-shell.pseudo-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  margin-top: 0;
+}
+body.pseudo-fs-open { overflow: hidden; }
 
 /* --- main row: thumbnail rail + book --- */
 .viewer-main { display: flex; align-items: stretch; }
@@ -365,10 +379,10 @@ a:hover { color: var(--cyan-dark); }
 
 /* --- fullscreen chrome: the bottom toolbar becomes a floating pill of
      circular, semi-transparent icon buttons over the edition. Same buttons,
-     same handlers — only the look changes inside :fullscreen, so exiting
+     same handlers — only the look changes inside .fs-mode, so exiting
      restores the normal toolbar exactly. Sits above the book but below
      the thumbnail sheet (z-index 20) --- */
-.viewer-shell:fullscreen .viewer-bar {
+.viewer-shell.fs-mode .viewer-bar {
   position: fixed;
   left: 50%;
   bottom: 1.25rem;
@@ -383,9 +397,9 @@ a:hover { color: var(--cyan-dark); }
   border-radius: 999px;
 }
 /* undo the narrow-width two-row wrap — the pill is one row of icons */
-.viewer-shell:fullscreen .bar-left,
-.viewer-shell:fullscreen .bar-right { flex-basis: auto; margin-left: 0; }
-.viewer-shell:fullscreen .viewer-bar .vbtn {
+.viewer-shell.fs-mode .bar-left,
+.viewer-shell.fs-mode .bar-right { flex-basis: auto; margin-left: 0; }
+.viewer-shell.fs-mode .viewer-bar .vbtn {
   min-width: 60px;
   min-height: 60px;
   width: 60px;
@@ -399,22 +413,22 @@ a:hover { color: var(--cyan-dark); }
   align-items: center;
   justify-content: center;
 }
-.viewer-shell:fullscreen .viewer-bar .vbtn:hover { background: rgba(26, 26, 26, 0.75); }
-.viewer-shell:fullscreen .viewer-bar .vbtn-label { display: none; }
-.viewer-shell:fullscreen .viewer-bar .vbtn-icon { display: block; }
+.viewer-shell.fs-mode .viewer-bar .vbtn:hover { background: rgba(26, 26, 26, 0.75); }
+.viewer-shell.fs-mode .viewer-bar .vbtn-label { display: none; }
+.viewer-shell.fs-mode .viewer-bar .vbtn-icon { display: block; }
 /* thin the magnifier icons to match the glyph style in fullscreen */
-.viewer-shell:fullscreen .viewer-bar .vbtn-mag svg { stroke-width: 1.8; }
-.viewer-shell:fullscreen .page-indicator { color: #FFFFFF; }
+.viewer-shell.fs-mode .viewer-bar .vbtn-mag svg { stroke-width: 1.8; }
+.viewer-shell.fs-mode .page-indicator { color: #FFFFFF; }
 /* the interface text-size pair stays out of fullscreen — the overlay
    keeps only page controls */
-.viewer-shell:fullscreen .vbtn-text-out,
-.viewer-shell:fullscreen .vbtn-text-in { display: none; }
+.viewer-shell.fs-mode .vbtn-text-out,
+.viewer-shell.fs-mode .vbtn-text-in { display: none; }
 /* auto-hide: the chrome fades after ~3s idle (JS adds .chrome-idle) and
    returns on pointer, touch or keyboard activity; it never hides while
    hovered or holding keyboard focus */
-.viewer-shell.chrome-idle:fullscreen .viewer-bar { opacity: 0; }
-.viewer-shell.chrome-idle:fullscreen .viewer-bar:hover,
-.viewer-shell.chrome-idle:fullscreen .viewer-bar:focus-within { opacity: 1; }
+.viewer-shell.chrome-idle.fs-mode .viewer-bar { opacity: 0; }
+.viewer-shell.chrome-idle.fs-mode .viewer-bar:hover,
+.viewer-shell.chrome-idle.fs-mode .viewer-bar:focus-within { opacity: 1; }
 
 /* --- thumbnails (shared by the desktop rail and the mobile sheet).
      TRUE aspect ratio per page from the manifest: the image keeps the
@@ -489,7 +503,7 @@ a:hover { color: var(--cyan-dark); }
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
   .vbtn { transition: background-color 0.15s ease-in-out; }
-  .viewer-shell:fullscreen .viewer-bar { transition: opacity 0.3s ease-in-out; } /* the auto-hide fade */
+  .viewer-shell.fs-mode .viewer-bar { transition: opacity 0.3s ease-in-out; } /* the auto-hide fade */
   .thumb-sheet { animation: sheet-up 0.2s ease-out; }
   @keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
 }
@@ -507,6 +521,10 @@ a:hover { color: var(--cyan-dark); }
 }
 .viewer-cta p { margin: 0; max-width: none; }
 .viewer-cta .btn { margin-left: auto; }
+@media (max-width: 40rem) {
+  /* thumb reach on phones: the primary action spans the row */
+  .viewer-cta .btn { width: 100%; margin-left: 0; }
+}
 /* cyan CTA button (same as index.html): 64px tap target */
 .btn {
   display: inline-flex;
@@ -686,9 +704,10 @@ a:hover { color: var(--cyan-dark); }
       <p>This demo needs JavaScript. You can <a href="sample-edition.pdf">open the PDF directly</a>.</p>
     </noscript>
 
-    <!-- COPY: waitlist CTA — one line plus the button -->
+    <!-- COPY: waitlist CTA — the founding offer carries the value,
+         the button carries the action (one primary action per screen) -->
     <div class="viewer-cta">
-      <p>Like what you see? Join the waitlist.</p>
+      <p>First 20 publications on the waitlist get half price for the first year.</p>
       <a class="btn" href="index.html#waitlist">Join the waitlist</a>
     </div>
 
@@ -1368,11 +1387,35 @@ a:hover { color: var(--cyan-dark); }
   btnRailMin.addEventListener("click", closeThumbs);
   scrim.addEventListener("click", closeThumbs);
 
-  if (!document.fullscreenEnabled) { btnFull.hidden = true; }
-  btnFull.addEventListener("click", function () {
-    if (document.fullscreenElement) { document.exitFullscreen(); }
-    else { shellEl.requestFullscreen(); }
-  });
+  /* Fullscreen: native Fullscreen API where it exists. iOS (Safari AND
+     Chrome — all WebKit) exposes no element fullscreen, so there the shell
+     gets .pseudo-fullscreen: fixed over the viewport, page scroll locked.
+     Both paths drive the same chrome through .fs-mode + setFsChrome. */
+  var pseudoFs = false;
+  function setFsChrome(on) {
+    shellEl.classList.toggle("fs-mode", on);
+    btnFull.querySelector(".vbtn-label").textContent = on ? "Exit" : "Full screen";
+    btnFull.setAttribute("aria-label", on ? "Exit full screen" : "Enter full screen");
+    if (on) {
+      pokeChrome();
+    } else {
+      window.clearTimeout(chromeTimer);
+      shellEl.classList.remove("chrome-idle");
+    }
+    if (manifest) { buildBook(current); } /* refit to the new frame size */
+  }
+  function toggleFull() {
+    if (document.fullscreenEnabled) {
+      if (document.fullscreenElement) { document.exitFullscreen(); }
+      else { shellEl.requestFullscreen(); }
+      return;
+    }
+    pseudoFs = !pseudoFs;
+    shellEl.classList.toggle("pseudo-fullscreen", pseudoFs);
+    document.body.classList.toggle("pseudo-fs-open", pseudoFs);
+    setFsChrome(pseudoFs);
+  }
+  btnFull.addEventListener("click", toggleFull);
 
   /* Fullscreen chrome auto-hide: any pointer, touch or keyboard activity
      shows the floating controls and restarts a 3s idle timer; CSS keeps
@@ -1381,7 +1424,7 @@ a:hover { color: var(--cyan-dark); }
   var chromeTimer = null;
   var chromePokedAt = 0;
   function pokeChrome() {
-    if (!document.fullscreenElement) { return; }
+    if (!document.fullscreenElement && !pseudoFs) { return; }
     var now = Date.now();
     if (now - chromePokedAt < 250 && !shellEl.classList.contains("chrome-idle")) { return; }
     chromePokedAt = now;
@@ -1397,16 +1440,7 @@ a:hover { color: var(--cyan-dark); }
   document.addEventListener("focusin", pokeChrome);
 
   document.addEventListener("fullscreenchange", function () {
-    var on = !!document.fullscreenElement;
-    btnFull.querySelector(".vbtn-label").textContent = on ? "Exit" : "Full screen";
-    btnFull.setAttribute("aria-label", on ? "Exit full screen" : "Enter full screen");
-    if (on) {
-      pokeChrome();
-    } else {
-      window.clearTimeout(chromeTimer);
-      shellEl.classList.remove("chrome-idle");
-    }
-    if (manifest) { buildBook(current); } /* refit to the new frame size */
+    setFsChrome(!!document.fullscreenElement);
   });
 
   /* Viewer keyboard control (WCAG 2.1.1): arrows flip, +/- zoom, Home/End
@@ -1417,6 +1451,7 @@ a:hover { color: var(--cyan-dark); }
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
       closeThumbs();
+      if (pseudoFs) { toggleFull(); } /* native fullscreen exits on Esc by itself */
       shellEl.classList.add("tips-off"); /* dismiss any open tooltip (1.4.13) */
       return;
     }
