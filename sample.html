@@ -274,6 +274,10 @@ body.pseudo-fs-open { overflow: hidden; }
 .book-frame.zoomed { cursor: grab; }
 .book-frame.panning { cursor: grabbing; }
 #book-pan { will-change: transform; transform-origin: 0 0; }
+/* at fit the book is centred by CSS, never by the pan transform, so the
+   spread always sits centred in the frame regardless of what geometry the
+   JS last measured (a stale pan offset can only exist while zoomed) */
+#book-pan.at-fit { width: max-content; margin-inline: auto; }
 #book { margin: 0; }
 .viewer .page, .page { background: #FFFFFF; overflow: hidden; }
 .page img {
@@ -429,6 +433,16 @@ body.pseudo-fs-open { overflow: hidden; }
 .viewer-shell.chrome-idle.fs-mode .viewer-bar { opacity: 0; }
 .viewer-shell.chrome-idle.fs-mode .viewer-bar:hover,
 .viewer-shell.chrome-idle.fs-mode .viewer-bar:focus-within { opacity: 1; }
+
+@media (max-width: 47.98rem) {
+  /* phones: pinch covers page zoom, and the small toolbar and fullscreen
+     pill are crowded, so the magnifier pair and the A−/A+ pair stay off
+     mobile entirely (the .vbtn.vbtn-* doubling matches the fullscreen
+     pill's specificity) */
+  .viewer-shell .viewer-bar .vbtn.vbtn-mag,
+  .viewer-shell .viewer-bar .vbtn.vbtn-text-out,
+  .viewer-shell .viewer-bar .vbtn.vbtn-text-in { display: none; }
+}
 
 /* --- thumbnails (shared by the desktop rail and the mobile sheet).
      TRUE aspect ratio per page from the manifest: the image keeps the
@@ -708,7 +722,7 @@ body.pseudo-fs-open { overflow: hidden; }
          the button carries the action (one primary action per screen) -->
     <div class="viewer-cta">
       <p>First 20 publications on the waitlist get half price for the first year.</p>
-      <a class="btn" href="index.html#waitlist">Join the waitlist</a>
+      <a class="btn" href="index.html#waitlist">Join the waitlist for 50% off</a>
     </div>
 
     <!-- COPY: credit — small and quiet, edition-specific like the lede -->
@@ -891,6 +905,13 @@ body.pseudo-fs-open { overflow: hidden; }
   }
 
   function applyPan() {
+    if (zoomIdx === 0) {
+      /* fit mode is centred by CSS (#book-pan.at-fit), no transform */
+      panX = 0;
+      panY = 0;
+      panEl.style.transform = "";
+      return;
+    }
     var b = panBounds();
     panX = Math.min(b.x[1], Math.max(b.x[0], panX));
     panY = Math.min(b.y[1], Math.max(b.y[0], panY));
@@ -912,10 +933,12 @@ body.pseudo-fs-open { overflow: hidden; }
      swipes reach StPageFlip and two-finger pinches reach our handlers). */
   function fitFrame() {
     if (zoomIdx > 0) {
+      panEl.classList.remove("at-fit");
       frameEl.classList.add("zoomed");
       frameEl.style.height = Math.min(pageCssH * zoom(), Math.round(window.innerHeight * 0.85)) + "px";
       frameEl.style.touchAction = "none";
     } else {
+      panEl.classList.add("at-fit");
       frameEl.classList.remove("zoomed", "panning");
       frameEl.style.height = "";
       frameEl.style.touchAction = "pan-y";
@@ -936,6 +959,10 @@ body.pseudo-fs-open { overflow: hidden; }
     var text;
     if (folios.length === 0) {
       text = "Blank page"; /* filler before a truck — carries no folio */
+    } else if (isSingle()) {
+      /* compact on phones: "6/12", since the long form crowds the small
+         toolbar and the fullscreen pill */
+      text = folios[0] + "/" + totalPrint;
     } else if (folios.length === 1) {
       text = "Page " + folios[0] + " of " + totalPrint;
     } else {
@@ -1082,6 +1109,12 @@ body.pseudo-fs-open { overflow: hidden; }
     next = Math.max(0, Math.min(ZOOMS.length - 1, next));
     if (next === zoomIdx) { return; }
     var oldZ = zoom();
+    if (zoomIdx === 0) {
+      /* fit mode centres by CSS, so panX/panY are 0 but the book's left edge
+         sits at the centred offset; seed it before the focal math */
+      panX = (frameEl.clientWidth - bookWidth()) / 2;
+      panY = 0;
+    }
     if (fx === undefined) { fx = frameEl.clientWidth / 2; fy = frameEl.clientHeight / 2; }
     /* book coordinates under the focal point, so it can stay put */
     var bx = (fx - panX) / oldZ;
@@ -1388,7 +1421,7 @@ body.pseudo-fs-open { overflow: hidden; }
   scrim.addEventListener("click", closeThumbs);
 
   /* Fullscreen: native Fullscreen API where it exists. iOS (Safari AND
-     Chrome — all WebKit) exposes no element fullscreen, so there the shell
+     Chrome, all WebKit) exposes no element fullscreen, so there the shell
      gets .pseudo-fullscreen: fixed over the viewport, page scroll locked.
      Both paths drive the same chrome through .fs-mode + setFsChrome. */
   var pseudoFs = false;
