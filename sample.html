@@ -289,6 +289,10 @@ body.pseudo-fs-open { overflow: hidden; }
 /* a truck half: the wide sheet at 200% width, right half shifted a page over */
 .page.half img { width: 200%; }
 .page.half.right img { margin-left: -100%; }
+/* a whole truck in single-page mode: the wide sheet letterboxed on one
+   phone screen instead of two half pages you flip between */
+.page.truck-full { display: flex; align-items: center; }
+.page.truck-full img { height: auto; }
 .viewer-status {
   margin: 0;
   padding: 3rem 1rem;
@@ -442,6 +446,23 @@ body.pseudo-fs-open { overflow: hidden; }
   .viewer-shell .viewer-bar .vbtn.vbtn-mag,
   .viewer-shell .viewer-bar .vbtn.vbtn-text-out,
   .viewer-shell .viewer-bar .vbtn.vbtn-text-in { display: none; }
+
+  /* the fullscreen pill fits on one line on phones: 4 buttons + the compact
+     "6/12" indicator at 48px targets */
+  .viewer-shell.fs-mode .viewer-bar {
+    flex-wrap: nowrap;
+    gap: 0.375rem;
+    padding: 0.25rem 0.5rem;
+  }
+  .viewer-shell.fs-mode .viewer-bar .bar-left,
+  .viewer-shell.fs-mode .viewer-bar .bar-right { flex-wrap: nowrap; gap: 0.375rem; }
+  .viewer-shell.fs-mode .viewer-bar .vbtn {
+    min-width: 48px;
+    min-height: 48px;
+    width: 48px;
+    height: 48px;
+  }
+  .viewer-shell.fs-mode .page-indicator { min-width: 0; padding: 0 0.25rem; font-size: 1rem; }
 }
 
 /* --- thumbnails (shared by the desktop rail and the mobile sheet).
@@ -470,7 +491,7 @@ body.pseudo-fs-open { overflow: hidden; }
 .thumb img { display: block; height: auto; }
 .thumb-num { text-align: center; }
 .thumb[aria-current="true"] { border-color: var(--cyan); border-width: 3px; }
-.thumb-truck { grid-column: span 2; } /* mobile sheet: a truck spans two cells */
+.thumb-truck { grid-column: 1 / -1; } /* mobile sheet: a truck spans the full row */
 
 /* --- mobile thumbnail bottom sheet --- */
 .thumb-scrim {
@@ -1028,6 +1049,17 @@ body.pseudo-fs-open { overflow: hidden; }
     bookEl.innerHTML = "";
     pageImages = [];
 
+    /* trucks plan as one full page in single mode and two facing halves in
+       spread mode, so the virtual pages depend on the mode; replan on every
+       build and keep the reader on the same PDF page */
+    var keepPdf = (vpages[current] && vpages[current].pdf >= 0) ? vpages[current].pdf : -1;
+    planPages(manifest);
+    if (keepPdf >= 0) {
+      for (var r = 0; r < vpages.length; r++) {
+        if (vpages[r].pdf === keepPdf) { targetPage = r; break; }
+      }
+    }
+
     var single = isSingle();
     var frameW = frameEl.clientWidth - 34; /* padding + borders */
     var w = single ? frameW : Math.floor(frameW / 2);
@@ -1040,7 +1072,8 @@ body.pseudo-fs-open { overflow: hidden; }
     for (var i = 0; i < vpages.length; i++) {
       var vp = vpages[i];
       var pageEl = document.createElement("div");
-      pageEl.className = vp.half === null ? "page" : (vp.half === 0 ? "page half" : "page half right");
+      pageEl.className = vp.truck ? "page truck-full"
+        : vp.half === null ? "page" : (vp.half === 0 ? "page half" : "page half right");
       /* APG carousel pattern: each page is a labeled group ("Page N of M") */
       pageEl.setAttribute("role", "group");
       pageEl.setAttribute("aria-roledescription", "page");
@@ -1395,7 +1428,9 @@ body.pseudo-fs-open { overflow: hidden; }
   }
 
   /* --- controls --- */
-  btnPrev.addEventListener("click", function () { if (pageFlip) { pageFlip.flipPrev(); } });
+  /* Prev jumps by our own tracked index, not StPageFlip's internal one —
+     robust if the two ever drift (the reported fullscreen Prev no-op) */
+  btnPrev.addEventListener("click", function () { if (pageFlip && current > 0) { pageFlip.flip(current - 1); } });
   btnNext.addEventListener("click", function () { if (pageFlip) { pageFlip.flipNext(); } });
   btnZoomIn.addEventListener("click", function () { zoomTo(zoomIdx + 1); });
   btnZoomOut.addEventListener("click", function () { zoomTo(zoomIdx - 1); });
@@ -1532,10 +1567,15 @@ body.pseudo-fs-open { overflow: hidden; }
     var ratios = [];
     m.pages.forEach(function (p) { if (!p.truck) { ratios.push(p.height / p.width); } });
     pageRatio = median(ratios);
+    var single = isSingle();
     vpages = [];
     for (var i = 0; i < m.pages.length; i++) {
       var mp = m.pages[i];
-      if (mp.truck) {
+      if (mp.truck && single) {
+        /* single-page mode: the whole wide sheet on one screen (letterboxed),
+           not two half pages you flip between */
+        vpages.push({ pdf: i, half: null, truck: true, folio: mp.print[0] + "–" + mp.print[1] });
+      } else if (mp.truck) {
         /* the left half must start on an odd virtual index so the two
            halves face each other in one spread (cover sits alone at 0) */
         if (vpages.length > 0 && vpages.length % 2 === 0) {

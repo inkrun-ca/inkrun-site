@@ -6,3 +6,6 @@ inkrun-md/
 
 # local Python venv for tools/pdf-to-pages.py
 tools/.venv/
+
+# local Playwright browsers for headless viewer verification
+tools/.pw-browsers/
