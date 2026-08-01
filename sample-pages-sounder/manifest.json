@@ -1,0 +1,139 @@
+{
+  "source": "snd_20260624_A12_merged.pdf",
+  "pageCount": 12,
+  "printCount": 12,
+  "pages": [
+    {
+      "page": "page-01.webp",
+      "thumb": "thumb-01.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        1,
+        1
+      ]
+    },
+    {
+      "page": "page-02.webp",
+      "thumb": "thumb-02.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        2,
+        2
+      ]
+    },
+    {
+      "page": "page-03.webp",
+      "thumb": "thumb-03.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        3,
+        3
+      ]
+    },
+    {
+      "page": "page-04.webp",
+      "thumb": "thumb-04.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        4,
+        4
+      ]
+    },
+    {
+      "page": "page-05.webp",
+      "thumb": "thumb-05.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        5,
+        5
+      ]
+    },
+    {
+      "page": "page-06.webp",
+      "thumb": "thumb-06.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        6,
+        6
+      ]
+    },
+    {
+      "page": "page-07.webp",
+      "thumb": "thumb-07.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        7,
+        7
+      ]
+    },
+    {
+      "page": "page-08.webp",
+      "thumb": "thumb-08.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        8,
+        8
+      ]
+    },
+    {
+      "page": "page-09.webp",
+      "thumb": "thumb-09.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        9,
+        9
+      ]
+    },
+    {
+      "page": "page-10.webp",
+      "thumb": "thumb-10.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        10,
+        10
+      ]
+    },
+    {
+      "page": "page-11.webp",
+      "thumb": "thumb-11.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        11,
+        11
+      ]
+    },
+    {
+      "page": "page-12.webp",
+      "thumb": "thumb-12.webp",
+      "width": 2200,
+      "height": 3377,
+      "truck": false,
+      "print": [
+        12,
+        12
+      ]
+    }
+  ]
+}

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Render the sample edition PDF to pre-rendered page images for the viewer.
 
-Usage (from the repo root):  python3 tools/pdf-to-pages.py
+Usage (from the repo root):  python3 tools/pdf-to-pages.py [--pdf PDF] [--out DIR]
 Renderer, checked in this order: pypdfium2 (pip install pypdfium2),
 pdftoppm (poppler), Ghostscript — all three need Pillow for WebP output
 (pypdfium2 wheels usually bundle it as a dependency; otherwise pip install
 Pillow). If none is found, install pypdfium2.
 
-Outputs, into sample-pages/:
+Outputs, into the output dir (default sample-pages/):
   page-NN.webp   full pages, 2600px wide, WebP q82 (dropped to q75 if the
                  folder tops ~12MB)
   thumb-NN.webp  thumbnails, 300px wide, WebP q75
@@ -16,6 +16,7 @@ Outputs, into sample-pages/:
 
 This is the seed of the future upload pipeline (see inkrun-md/DECISIONS.md).
 """
+import argparse
 import json
 import shutil
 import subprocess
@@ -24,8 +25,8 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PDF_PATH = ROOT / "Sample" / "EDGJun26_2026.pdf"
-OUT_DIR = ROOT / "sample-pages"
+DEFAULT_PDF = ROOT / "Sample" / "EDGJun26_2026.pdf"
+DEFAULT_OUT = ROOT / "sample-pages"
 FULL_W, FULL_Q = 2600, 82
 THUMB_W, THUMB_Q = 300, 75
 SIZE_CAP = 12 * 1024 * 1024
@@ -99,6 +100,23 @@ def pick_renderer():
 
 
 def main():
+    global PDF_PATH, OUT_DIR, FULL_W, FULL_Q
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--pdf", type=Path, default=DEFAULT_PDF,
+                        help="input PDF (default: %(default)s)")
+    parser.add_argument("--out", type=Path, default=DEFAULT_OUT,
+                        help="output directory for pages, thumbs and manifest (default: %(default)s)")
+    parser.add_argument("--width", type=int, default=FULL_W,
+                        help="full-page pixel width (default: %(default)s)")
+    parser.add_argument("--quality", type=int, default=FULL_Q,
+                        help="full-page WebP quality (default: %(default)s; auto-drops to 75 over the size cap)")
+    args = parser.parse_args()
+
+    PDF_PATH = args.pdf.resolve()
+    OUT_DIR = args.out.resolve()
+    FULL_W = args.width
+    FULL_Q = args.quality
+
     (sizes, render), engine = pick_renderer()
     count = len(sizes)
     widths = sorted(w for w, _ in sizes)
@@ -145,7 +163,7 @@ def main():
     print(f"renderer: {engine}")
     print(f"{count} PDF pages, {folio - 1} print pages, "
           f"{sum(trucks)} double truck(s), full quality q{quality}")
-    print(f"sample-pages/ total: {total / 1024 / 1024:.1f} MB")
+    print(f"{OUT_DIR.name}/ total: {total / 1024 / 1024:.1f} MB")
 
 
 if __name__ == "__main__":

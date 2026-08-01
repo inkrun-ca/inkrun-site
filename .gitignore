@@ -3,3 +3,6 @@ inkrun-md/
 
 # macOS
 .DS_Store
+
+# local Python venv for tools/pdf-to-pages.py
+tools/.venv/
