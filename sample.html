@@ -380,16 +380,19 @@ body.pseudo-fs-open { overflow: hidden; }
   min-width: 9ch;
   text-align: center;
 }
-/* fullscreen chrome icons: hand-drawn inline SVGs in an iOS glyph style
-   (thin ~1.8px stroke, round caps, simple geometric shapes). Hidden in the
-   normal toolbar, swapped in for the text labels only in fullscreen */
+/* icon buttons (prev, next, pages, fullscreen): the same hand-drawn iOS
+   glyph SVGs in both modes; the label span stays in the DOM (the
+   fullscreen toggle rewrites its text) and the data-tip tooltip carries
+   the name */
 .vbtn-icon { display: none; width: 1.75rem; height: 1.75rem; }
+.vbtn-ic { display: inline-flex; align-items: center; justify-content: center; }
+.vbtn-ic .vbtn-icon { display: block; }
+.vbtn-ic .vbtn-label { display: none; }
 
-/* --- fullscreen chrome: the bottom toolbar becomes a floating pill of
-     circular, semi-transparent icon buttons over the edition. Same buttons,
-     same handlers — only the look changes inside .fs-mode, so exiting
-     restores the normal toolbar exactly. Sits above the book but below
-     the thumbnail sheet (z-index 20) --- */
+/* --- fullscreen chrome: the toolbar buttons float directly over the
+     edition as circular, semi-transparent discs, with no bar behind them.
+     Same buttons, same handlers, only the look changes inside .fs-mode.
+     Sits above the book but below the thumbnail sheet (z-index 20) --- */
 .viewer-shell.fs-mode .viewer-bar {
   position: fixed;
   left: 50%;
@@ -400,9 +403,8 @@ body.pseudo-fs-open { overflow: hidden; }
   max-width: calc(100% - 2rem);
   justify-content: center;
   border: 0;
-  padding: 0.375rem 0.75rem;
-  background: rgba(26, 26, 26, 0.4); /* ink at 40%, same as the thumb scrim */
-  border-radius: 999px;
+  padding: 0;
+  background: transparent;
 }
 /* undo the narrow-width two-row wrap — the pill is one row of icons */
 .viewer-shell.fs-mode .bar-left,
@@ -422,15 +424,21 @@ body.pseudo-fs-open { overflow: hidden; }
   justify-content: center;
 }
 .viewer-shell.fs-mode .viewer-bar .vbtn:hover { background: rgba(26, 26, 26, 0.75); }
-.viewer-shell.fs-mode .viewer-bar .vbtn-label { display: none; }
-.viewer-shell.fs-mode .viewer-bar .vbtn-icon { display: block; }
 /* thin the magnifier icons to match the glyph style in fullscreen */
 .viewer-shell.fs-mode .viewer-bar .vbtn-mag svg { stroke-width: 1.8; }
-.viewer-shell.fs-mode .page-indicator { color: #FFFFFF; }
+/* the indicator gets its own disc so the white text stays readable over
+   the edition (there is no bar behind the buttons anymore) */
+.viewer-shell.fs-mode .page-indicator {
+  color: #FFFFFF;
+  background: rgba(26, 26, 26, 0.55);
+  border-radius: 999px;
+  padding: 0.5rem 0.75rem;
+}
 /* the interface text-size pair stays out of fullscreen — the overlay
-   keeps only page controls */
-.viewer-shell.fs-mode .vbtn-text-out,
-.viewer-shell.fs-mode .vbtn-text-in { display: none; }
+   keeps only page controls (doubled up to beat the circle rule's
+   display: inline-flex, which has one more class) */
+.viewer-shell.fs-mode .viewer-bar .vbtn.vbtn-text-out,
+.viewer-shell.fs-mode .viewer-bar .vbtn.vbtn-text-in { display: none; }
 /* auto-hide: the chrome fades after ~3s idle (JS adds .chrome-idle) and
    returns on pointer, touch or keyboard activity; it never hides while
    hovered or holding keyboard focus */
@@ -447,12 +455,11 @@ body.pseudo-fs-open { overflow: hidden; }
   .viewer-shell .viewer-bar .vbtn.vbtn-text-out,
   .viewer-shell .viewer-bar .vbtn.vbtn-text-in { display: none; }
 
-  /* the fullscreen pill fits on one line on phones: 4 buttons + the compact
-     "6/12" indicator at 48px targets */
+  /* the fullscreen controls fit on one line on phones: 4 buttons + the
+     compact "6/12" indicator at 48px targets */
   .viewer-shell.fs-mode .viewer-bar {
     flex-wrap: nowrap;
     gap: 0.375rem;
-    padding: 0.25rem 0.5rem;
   }
   .viewer-shell.fs-mode .viewer-bar .bar-left,
   .viewer-shell.fs-mode .viewer-bar .bar-right { flex-wrap: nowrap; gap: 0.375rem; }
@@ -462,7 +469,7 @@ body.pseudo-fs-open { overflow: hidden; }
     width: 48px;
     height: 48px;
   }
-  .viewer-shell.fs-mode .page-indicator { min-width: 0; padding: 0 0.25rem; font-size: 1rem; }
+  .viewer-shell.fs-mode .page-indicator { min-width: 0; padding: 0.375rem 0.5rem; font-size: 1rem; }
 }
 
 /* --- thumbnails (shared by the desktop rail and the mobile sheet).
@@ -531,8 +538,8 @@ body.pseudo-fs-open { overflow: hidden; }
 .thumb-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
-  gap: 1rem;
-  padding: 1rem;
+  gap: 1.5rem;
+  padding: 1.25rem;
   overflow-y: auto;
 }
 @media (prefers-reduced-motion: no-preference) {
@@ -674,14 +681,14 @@ body.pseudo-fs-open { overflow: hidden; }
            A−/A+ interface text size, magnifier page zoom, thumbnails, fullscreen right -->
       <div class="viewer-bar" role="group" aria-label="Edition controls">
         <div class="bar-left">
-          <button class="vbtn" id="btn-prev" type="button" aria-label="Previous page" data-tip="Previous page">
+          <button class="vbtn vbtn-ic" id="btn-prev" type="button" aria-label="Previous page" data-tip="Previous page">
             <span class="vbtn-label">Prev</span>
             <svg class="vbtn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
               <path d="M14.8 5.2 8.2 12l6.6 6.8"/>
             </svg>
           </button>
           <p class="page-indicator" id="page-indicator" role="status" aria-live="polite">Loading</p>
-          <button class="vbtn" id="btn-next" type="button" aria-label="Next page" data-tip="Next page">
+          <button class="vbtn vbtn-ic" id="btn-next" type="button" aria-label="Next page" data-tip="Next page">
             <span class="vbtn-label">Next</span>
             <svg class="vbtn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
               <path d="M9.2 5.2 15.8 12l-6.6 6.8"/>
@@ -705,7 +712,7 @@ body.pseudo-fs-open { overflow: hidden; }
               <path d="M7.8 10.4h5.1M10.3 7.9v5.2"/>
             </svg>
           </button>
-          <button class="vbtn" id="btn-thumbs" type="button" aria-expanded="false" aria-controls="thumb-rail thumb-sheet" aria-label="Page thumbnails" data-tip="Thumbnails">
+          <button class="vbtn vbtn-ic" id="btn-thumbs" type="button" aria-expanded="false" aria-controls="thumb-rail thumb-sheet" aria-label="Page thumbnails" data-tip="Thumbnails">
             <span class="vbtn-label">Pages</span>
             <svg class="vbtn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
               <rect x="4.2" y="4.2" width="6.6" height="6.6" rx="1.4"/>
@@ -714,7 +721,7 @@ body.pseudo-fs-open { overflow: hidden; }
               <rect x="13.2" y="13.2" width="6.6" height="6.6" rx="1.4"/>
             </svg>
           </button>
-          <button class="vbtn" id="btn-full" type="button" aria-label="Enter full screen" data-tip="Fullscreen">
+          <button class="vbtn vbtn-ic" id="btn-full" type="button" aria-label="Enter full screen" data-tip="Fullscreen">
             <span class="vbtn-label">Full screen</span>
             <svg class="vbtn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
               <path d="M9 4.5H4.5V9M15 4.5h4.5V9M9 19.5H4.5V15M15 19.5h4.5V15"/>
@@ -956,7 +963,8 @@ body.pseudo-fs-open { overflow: hidden; }
     if (zoomIdx > 0) {
       panEl.classList.remove("at-fit");
       frameEl.classList.add("zoomed");
-      frameEl.style.height = Math.min(pageCssH * zoom(), Math.round(window.innerHeight * 0.85)) + "px";
+      frameEl.style.height = Math.min(pageCssH * zoom(), Math.round(window.innerHeight *
+        (shellEl.classList.contains("fs-mode") ? 0.98 : 0.85))) + "px";
       frameEl.style.touchAction = "none";
     } else {
       panEl.classList.add("at-fit");
@@ -1064,7 +1072,9 @@ body.pseudo-fs-open { overflow: hidden; }
     var frameW = frameEl.clientWidth - 34; /* padding + borders */
     var w = single ? frameW : Math.floor(frameW / 2);
     var h = Math.round(w * pageRatio);
-    var maxH = Math.round(window.innerHeight * 0.85);
+    /* fullscreen chrome floats over the edition, so the book gets nearly
+       the whole screen height there; in normal mode the toolbar needs room */
+    var maxH = Math.round(window.innerHeight * (shellEl.classList.contains("fs-mode") ? 0.98 : 0.85));
     if (h > maxH) { h = maxH; w = Math.round(h / pageRatio); }
     pageCssW = Math.max(1, Math.round(w));
     pageCssH = Math.max(1, Math.round(h));
@@ -1358,8 +1368,9 @@ body.pseudo-fs-open { overflow: hidden; }
         var num = document.createElement("span");
         num.className = "thumb-num";
         num.textContent = label;
-        btn.appendChild(img);
+        /* folio number above the thumbnail, on both the rail and the sheet */
         btn.appendChild(num);
+        btn.appendChild(img);
         btn.addEventListener("click", function () {
           if (isSingle()) { closeThumbs(); } /* the rail NEVER closes on desktop */
           if (!pageFlip) { return; }
@@ -1471,6 +1482,13 @@ body.pseudo-fs-open { overflow: hidden; }
       shellEl.classList.remove("chrome-idle");
     }
     if (manifest) { buildBook(current); } /* refit to the new frame size */
+    if (on) {
+      /* the keyboard handler ignores keys coming from focused buttons
+         (WCAG 2.1.4), and entering fullscreen leaves focus on the button
+         that was just clicked, so the arrows would be dead until the
+         reader clicked the book. Move focus to the frame on entry. */
+      frameEl.focus({ preventScroll: true });
+    }
   }
   function toggleFull() {
     if (document.fullscreenEnabled) {

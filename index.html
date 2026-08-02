@@ -267,26 +267,20 @@ a:hover { color: var(--cyan-dark); }
     padding: 0.75rem 0 0.25rem;
   }
   .compare thead th:nth-child(2) { grid-row: 1; margin-top: 0; }
-  .compare thead th:nth-child(3) { grid-row: 8; }
-  .compare thead th:nth-child(4) { grid-row: 15; }
+  .compare thead th:nth-child(3) { grid-row: 6; }
+  .compare thead th:nth-child(4) { grid-row: 11; }
   .compare tbody tr:nth-child(1) td:nth-child(2) { grid-row: 2; }
   .compare tbody tr:nth-child(2) td:nth-child(2) { grid-row: 3; }
   .compare tbody tr:nth-child(3) td:nth-child(2) { grid-row: 4; }
   .compare tbody tr:nth-child(4) td:nth-child(2) { grid-row: 5; }
-  .compare tbody tr:nth-child(5) td:nth-child(2) { grid-row: 6; }
-  .compare tbody tr:nth-child(6) td:nth-child(2) { grid-row: 7; }
-  .compare tbody tr:nth-child(1) td:nth-child(3) { grid-row: 9; }
-  .compare tbody tr:nth-child(2) td:nth-child(3) { grid-row: 10; }
-  .compare tbody tr:nth-child(3) td:nth-child(3) { grid-row: 11; }
-  .compare tbody tr:nth-child(4) td:nth-child(3) { grid-row: 12; }
-  .compare tbody tr:nth-child(5) td:nth-child(3) { grid-row: 13; }
-  .compare tbody tr:nth-child(6) td:nth-child(3) { grid-row: 14; }
-  .compare tbody tr:nth-child(1) td:nth-child(4) { grid-row: 16; }
-  .compare tbody tr:nth-child(2) td:nth-child(4) { grid-row: 17; }
-  .compare tbody tr:nth-child(3) td:nth-child(4) { grid-row: 18; }
-  .compare tbody tr:nth-child(4) td:nth-child(4) { grid-row: 19; }
-  .compare tbody tr:nth-child(5) td:nth-child(4) { grid-row: 20; }
-  .compare tbody tr:nth-child(6) td:nth-child(4) { grid-row: 21; }
+  .compare tbody tr:nth-child(1) td:nth-child(3) { grid-row: 7; }
+  .compare tbody tr:nth-child(2) td:nth-child(3) { grid-row: 8; }
+  .compare tbody tr:nth-child(3) td:nth-child(3) { grid-row: 9; }
+  .compare tbody tr:nth-child(4) td:nth-child(3) { grid-row: 10; }
+  .compare tbody tr:nth-child(1) td:nth-child(4) { grid-row: 12; }
+  .compare tbody tr:nth-child(2) td:nth-child(4) { grid-row: 13; }
+  .compare tbody tr:nth-child(3) td:nth-child(4) { grid-row: 14; }
+  .compare tbody tr:nth-child(4) td:nth-child(4) { grid-row: 15; }
   .compare td { border-top: 0; padding: 0.35rem 0; }
   .compare td::before { content: attr(data-label) ": "; font-weight: 700; }
   .compare tbody tr:last-child td { border-bottom: 0; }
@@ -576,11 +570,11 @@ a:hover { color: var(--cyan-dark); }
   <section id="payments" class="wrap">
     <h2>How payments work</h2>
     <!-- COPY: Stripe Connect, how it works. Plain version of PRD.md section 5 -->
-    <p>You open your own Stripe account and connect it to Inkrun. Your readers pay you, not us. The money goes into your Stripe account and pays out to your bank. Inkrun bills you the flat monthly rate separately.</p>
-    <!-- COPY: the benefits -->
-    <p>Because the account is yours, your subscribers pay you directly. Your subscriber list, your payment data, and your reader relationships sit with you. If you ever leave Inkrun, your Stripe account and everything in it stays with you.</p>
+    <p>You open your own Stripe account and connect it to Inkrun. Your readers pay you, not us. Inkrun bills you the flat monthly rate separately.</p>
+    <!-- COPY: the benefit -->
+    <p>Because the account is yours, your subscriber list and payment data stay with you, even if you leave Inkrun.</p>
     <!-- COPY: the drawbacks, stated plainly -->
-    <p>Two things to know. Stripe asks you to verify your identity when you open the account, and an incorporated paper also needs its corporation number and director details. And Stripe charges its standard card processing fees on each payment. Inkrun's monthly rate is separate, and it is the only thing Inkrun ever charges you.</p>
+    <p>Two things to know. Stripe asks you to verify your identity (an incorporated paper also needs its corporation number and director details), and Stripe charges its standard card processing fees on each payment.</p>
   </section>
 
   <div class="rule" aria-hidden="true">
