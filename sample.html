@@ -373,13 +373,38 @@ body.pseudo-fs-open { overflow: hidden; }
 .vbtn-mag svg { width: 1.75rem; height: 1.75rem; }
 .page-indicator {
   margin: 0;
-  padding: 0 0.5rem;
+  padding: 0.5rem 0.75rem;
   font-family: var(--sans);
   font-weight: 700;
   font-size: 1.125rem;
   min-width: 9ch;
   text-align: center;
+  /* the indicator is a disc like the buttons, so the white text stays
+     readable when the bar floats over the edition in fullscreen */
+  color: #FFFFFF;
+  background: rgba(26, 26, 26, 0.55);
+  border-radius: 999px;
 }
+/* toolbar buttons are circular semi-transparent discs in BOTH modes
+   (white glyph on ink at 55%); fullscreen only repositions the bar over
+   the edition and auto-hides it. Buttons outside the bar (sheet Close,
+   rail chevron) keep the rectangular .vbtn style */
+.viewer-bar .vbtn {
+  min-width: 60px;
+  min-height: 60px;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(26, 26, 26, 0.55);
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.viewer-bar .vbtn:hover { background: rgba(26, 26, 26, 0.75); }
+.viewer-bar .vbtn[disabled]:hover { background: rgba(26, 26, 26, 0.55); }
 /* icon buttons (prev, next, pages, fullscreen): the same hand-drawn iOS
    glyph SVGs in both modes; the label span stays in the DOM (the
    fullscreen toggle rewrites its text) and the data-tip tooltip carries
@@ -406,37 +431,14 @@ body.pseudo-fs-open { overflow: hidden; }
   padding: 0;
   background: transparent;
 }
-/* undo the narrow-width two-row wrap — the pill is one row of icons */
+/* undo the narrow-width two-row wrap — the floating bar is one row of discs */
 .viewer-shell.fs-mode .bar-left,
 .viewer-shell.fs-mode .bar-right { flex-basis: auto; margin-left: 0; }
-.viewer-shell.fs-mode .viewer-bar .vbtn {
-  min-width: 60px;
-  min-height: 60px;
-  width: 60px;
-  height: 60px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: rgba(26, 26, 26, 0.55);
-  color: #FFFFFF;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.viewer-shell.fs-mode .viewer-bar .vbtn:hover { background: rgba(26, 26, 26, 0.75); }
 /* thin the magnifier icons to match the glyph style in fullscreen */
 .viewer-shell.fs-mode .viewer-bar .vbtn-mag svg { stroke-width: 1.8; }
-/* the indicator gets its own disc so the white text stays readable over
-   the edition (there is no bar behind the buttons anymore) */
-.viewer-shell.fs-mode .page-indicator {
-  color: #FFFFFF;
-  background: rgba(26, 26, 26, 0.55);
-  border-radius: 999px;
-  padding: 0.5rem 0.75rem;
-}
 /* the interface text-size pair stays out of fullscreen — the overlay
-   keeps only page controls (doubled up to beat the circle rule's
-   display: inline-flex, which has one more class) */
+   keeps only page controls (doubled up to beat the disc rule, which has
+   an element selector more) */
 .viewer-shell.fs-mode .viewer-bar .vbtn.vbtn-text-out,
 .viewer-shell.fs-mode .viewer-bar .vbtn.vbtn-text-in { display: none; }
 /* auto-hide: the chrome fades after ~3s idle (JS adds .chrome-idle) and
@@ -474,13 +476,15 @@ body.pseudo-fs-open { overflow: hidden; }
 
 /* --- thumbnails (shared by the desktop rail and the mobile sheet).
      TRUE aspect ratio per page from the manifest: the image keeps the
-     page's own proportions, the CSS width is set per thumb (trucks span
-     full width), height stays auto — nothing is forced into a fixed box. --- */
+     page's own proportions at full card width (8rem in the desktop
+     rail), height stays auto — nothing is forced into a fixed box.
+     The folio number is a badge at the card's top-right. --- */
 .thumb {
   display: flex;
   flex-direction: column;
   align-items: center;
   flex: none; /* never shrink to fit the rail — that squished the bitmaps */
+  position: relative; /* anchors the folio badge */
   gap: 0.25rem;
   min-width: 64px;
   min-height: 64px;
@@ -495,8 +499,22 @@ body.pseudo-fs-open { overflow: hidden; }
   line-height: 1.2;
   cursor: pointer;
 }
-.thumb img { display: block; height: auto; }
-.thumb-num { text-align: center; }
+.thumb img { display: block; height: auto; flex: none; width: 100%; }
+/* the folio sits as a small badge at the card's top-right, out of the
+   vertical flow, so the image gets the freed space. Paper chip keeps it
+   readable where it overlaps the page edge */
+.thumb-num {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.375rem;
+  padding: 0 0.3rem;
+  background: rgba(253, 253, 248, 0.9); /* paper at 90% */
+  border-radius: 3px;
+  font-size: 0.875rem;
+  text-align: right;
+}
+/* the desktop rail has room for a wider thumb */
+.thumb-rail-list .thumb img { width: 8rem; }
 .thumb[aria-current="true"] { border-color: var(--cyan); border-width: 3px; }
 .thumb-truck { grid-column: 1 / -1; } /* mobile sheet: a truck spans the full row */
 
@@ -538,6 +556,9 @@ body.pseudo-fs-open { overflow: hidden; }
 .thumb-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  /* explicit max-content rows: bare "auto" resolves to the card's
+     min-height (64px) and the image overflows the card */
+  grid-auto-rows: max-content;
   gap: 1.5rem;
   padding: 1.25rem;
   overflow-y: auto;
@@ -1364,7 +1385,9 @@ body.pseudo-fs-open { overflow: hidden; }
         img.alt = "";
         img.draggable = false;
         img.loading = "lazy";
-        img.style.width = mp.truck ? "100%" : "7rem";
+        /* the manifest's pixel size pins the box before the image loads,
+           and grid rows size to it (auto rows ignore an img's height) */
+        img.style.aspectRatio = mp.width + " / " + mp.height;
         var num = document.createElement("span");
         num.className = "thumb-num";
         num.textContent = label;
